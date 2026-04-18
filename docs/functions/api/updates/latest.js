@@ -15,10 +15,6 @@ export async function onRequest(context) {
 
   try {
     const upstream = await fetch(UPSTREAM_LATEST_JSON, {
-      cf: {
-        cacheTtl: EDGE_TTL_SECONDS,
-        cacheEverything: true,
-      },
       headers: {
         accept: 'application/json',
         'user-agent': 'runhq-updater-proxy (+https://runhq.dev)',
@@ -54,7 +50,13 @@ export async function onRequest(context) {
       },
     });
   } catch (err) {
-    return json({ error: 'proxy_fetch_failed' }, 502);
+    return json(
+      {
+        error: 'proxy_fetch_failed',
+        message: String(err && err.message ? err.message : err),
+      },
+      502,
+    );
   }
 }
 
@@ -64,6 +66,7 @@ function json(payload, status = 200, extraHeaders = {}) {
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
+      'x-runhq-proxy': 'cf-pages',
       ...extraHeaders,
     },
   });
