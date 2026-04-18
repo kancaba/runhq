@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RunHQ — The native process orchestrator for local dev</title>
+    <meta
+      name="description"
+      content="One window to start, stop, monitor, and debug every local dev service — Node, Go, .NET, Python, Docker — without containers. 100% local, <100MB RAM."
+    />
+    <meta
+      property="og:title"
+      content="RunHQ — The native process orchestrator for local dev"
+    />
+    <meta
+      property="og:description"
+      content="One window to rule all your local dev services. Native, local, offline. No telemetry, no cloud, no account."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://runhq.dev" />
+    <meta property="og:image" content="https://runhq.dev/icon.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="RunHQ app icon" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RunHQ — The native process orchestrator for local dev" />
+    <meta
+      name="twitter:description"
+      content="One window to rule all your local dev services. Native, local, offline. No telemetry, no cloud, no account."
+    />
+    <meta name="twitter:image" content="https://runhq.dev/icon.png" />
+    <meta name="theme-color" content="#0c0c0c" />
+    <link rel="canonical" href="https://runhq.dev" />
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <link rel="mask-icon" href="icon.png" color="#FB923C" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true">
+      <div class="page-bg-grid"></div>
+      <div class="page-bg-glow"></div>
+    </div>
+
+    <header class="nav">
+      <div class="nav-inner">
+        <a href="#" class="nav-brand" aria-label="RunHQ home">
+          <img src="icon.png" alt="" width="22" height="22" />
+          <span>RunHQ</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#platform">Platform</a>
+          <a href="#palette">Shortcuts</a>
+          <a href="#features">Features</a>
+          <a href="#install">Install</a>
+          <a href="https://github.com/erdembas/runhq">GitHub</a>
+        </nav>
+        <div class="nav-actions">
+          <a
+            href="https://github.com/erdembas/runhq/releases/latest"
+            class="nav-cta"
+          >
+            Get RunHQ
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============ HERO ============ -->
+      <section class="hero">
+        <div class="hero-inner">
+          <div class="hero-tagline">The native process orchestrator</div>
+          <h1 class="hero-title">
+            Run every
+            <span class="tw-wrap">
+              <span class="tw-text" aria-live="polite"></span><span
+                class="tw-cursor"
+                aria-hidden="true"
+              ></span>
+            </span>
+            <br />
+            from one window.
+          </h1>
+          <p class="hero-lead">
+            <strong>Dozens of projects. Hundreds of services.</strong> One
+            native app to start, stop, tail logs and watch ports — no
+            containers, no cloud, no account.
+          </p>
+
+          <div class="hero-ctas">
+            <a
+              href="https://github.com/erdembas/runhq/releases/latest"
+              class="btn btn-primary"
+            >
+              Get RunHQ
+            </a>
+            <a href="#features" class="btn btn-text">
+              See features
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5 12h14M13 6l6 6-6 6"
+                />
+              </svg>
+            </a>
+          </div>
+
+          <ul class="hero-chips">
+            <li>9 runtimes</li>
+            <li>&lt;100 MB RAM</li>
+            <li>macOS · Linux · Windows</li>
+            <li>MIT · open source</li>
+          </ul>
+        </div>
+
+        <!-- Real app screenshot. Keeps its own macOS chrome + shadow, so the
+             outer wrapper only adds a subtle frame glow (see style.css). -->
+        <div class="hero-window-shell reveal">
+          <a
+            class="hero-window hero-window--shot"
+            href="dashboard.png"
+            aria-label="Open full-size dashboard screenshot"
+          >
+            <img
+              src="dashboard.png"
+              alt="RunHQ dashboard — workspace sidebar with services grouped by section and a live status overview"
+              width="1803"
+              height="1240"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </a>
+        </div>
+      </section>
+
+      <!-- ============ WORKS WITH STRIP ============ -->
+      <section class="strip" aria-label="Supported runtimes">
+        <div class="strip-label">Works with your stack</div>
+        <div class="strip-track">
+          <div class="strip-inner">
+            <span class="rt">Node.js</span>
+            <span class="rt">Go</span>
+            <span class="rt">.NET</span>
+            <span class="rt">Python</span>
+            <span class="rt">Java</span>
+            <span class="rt">Rust</span>
+            <span class="rt">Ruby</span>
+            <span class="rt">PHP</span>
+            <span class="rt">Docker Compose</span>
+            <span class="rt" aria-hidden="true">Node.js</span>
+            <span class="rt" aria-hidden="true">Go</span>
+            <span class="rt" aria-hidden="true">.NET</span>
+            <span class="rt" aria-hidden="true">Python</span>
+            <span class="rt" aria-hidden="true">Java</span>
+            <span class="rt" aria-hidden="true">Rust</span>
+            <span class="rt" aria-hidden="true">Ruby</span>
+            <span class="rt" aria-hidden="true">PHP</span>
+            <span class="rt" aria-hidden="true">Docker Compose</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PLATFORM — 4 SURFACES ============ -->
+      <section id="platform" class="platform">
+        <div class="section-head reveal">
+          <span class="kicker">Platform</span>
+          <h2 class="section-title">Four surfaces. One app.</h2>
+        </div>
+
+        <div class="planes reveal">
+          <article class="plane">
+            <div class="plane-head">
+              <span class="plane-num">01</span>
+              <h3 class="plane-title">Observe</h3>
+            </div>
+            <div class="plane-preview pv-logs">
+              <div class="pv-log"><span class="pv-t">12:04</span><span class="pv-s pv-s-e">web</span>Ready · <span class="pv-ok">localhost:3000</span></div>
+              <div class="pv-log"><span class="pv-t">12:04</span><span class="pv-s pv-s-b">api</span>GET /orders <span class="pv-ok">200</span> · 42ms</div>
+              <div class="pv-log is-hl"><span class="pv-t">12:05</span><span class="pv-s pv-s-r">api</span><span class="pv-w">warn</span> slow query 312ms</div>
+              <div class="pv-log"><span class="pv-t">12:05</span><span class="pv-s pv-s-e">web</span>HMR · OrderList.tsx</div>
+            </div>
+          </article>
+
+          <article class="plane">
+            <div class="plane-head">
+              <span class="plane-num">02</span>
+              <h3 class="plane-title">Run</h3>
+            </div>
+            <div class="plane-preview pv-run">
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">web</span><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span></div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">api</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span></div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">worker</span><code class="pv-cmd">dotnet run</code><span class="pv-port">—</span></div>
+              <div class="pv-svc"><span class="svc-dot is-warn"></span><span class="pv-name">postgres</span><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span></div>
+            </div>
+          </article>
+
+          <article class="plane">
+            <div class="plane-head">
+              <span class="plane-num">03</span>
+              <h3 class="plane-title">Discover</h3>
+            </div>
+            <div class="plane-preview pv-scan">
+              <div class="pv-scan-row"><span class="dc-ico">node</span><code class="pv-cmd">pnpm dev</code><span class="pv-meta">package.json</span></div>
+              <div class="pv-scan-row"><span class="dc-ico">go</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-meta">go.mod</span></div>
+              <div class="pv-scan-row"><span class="dc-ico">py</span><code class="pv-cmd">uv run train.py</code><span class="pv-meta">pyproject.toml</span></div>
+              <div class="pv-scan-row"><span class="dc-ico">dk</span><code class="pv-cmd">docker compose up</code><span class="pv-meta">compose.yaml</span></div>
+            </div>
+          </article>
+
+          <article class="plane">
+            <div class="plane-head">
+              <span class="plane-num">04</span>
+              <h3 class="plane-title">Orchestrate</h3>
+            </div>
+            <div class="plane-preview pv-stack">
+              <div class="pv-stack-head">
+                <span class="pv-stack-name">acme-platform</span>
+                <span class="pv-stack-count">4 / 6 running</span>
+                <span class="pv-stack-play">▶ Play all</span>
+              </div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">postgres</span><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span></div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">redis</span><code class="pv-cmd">redis-server</code><span class="pv-port">:6379</span></div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">api</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span></div>
+              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">web</span><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ PERSONA STRIP ============ -->
+      <section class="persona" aria-label="Who RunHQ is for">
+        <div class="persona-inner reveal">
+          <span class="persona-line">
+            <span class="persona-ico">◆</span> Solo devs juggling a dozen
+            client repos.
+          </span>
+          <span class="persona-line">
+            <span class="persona-ico">◆</span> Platform teams with polyglot
+            monorepos.
+          </span>
+          <span class="persona-line">
+            <span class="persona-ico">◆</span> Anyone tired of six terminal
+            tabs.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============ COMMAND PALETTE / SHORTCUTS ============ -->
+      <section id="palette" class="palette">
+        <div class="section-head reveal">
+          <span class="kicker">Keyboard-first</span>
+          <h2 class="section-title">Summon RunHQ from anywhere.</h2>
+          <p class="section-sub">
+            A command palette that follows your fingers. Open it inside the
+            app, or pull it up from any other window — no context switch, no
+            mouse.
+          </p>
+        </div>
+
+        <div class="palette-grid reveal">
+          <article class="palette-card">
+            <div class="palette-card-head">
+              <span class="palette-num">01</span>
+              <h3 class="palette-card-title">Inside RunHQ</h3>
+            </div>
+            <div class="palette-shortcut">
+              <span class="kbd-combo">
+                <kbd class="kbd-big">⌘</kbd>
+                <span class="kbd-plus">+</span>
+                <kbd class="kbd-big">K</kbd>
+              </span>
+              <span class="kbd-alt">
+                <kbd class="inline-kbd">Ctrl</kbd>
+                <span class="kbd-plus-dim">+</span>
+                <kbd class="inline-kbd">K</kbd>
+                <span class="kbd-alt-label">on Linux / Windows</span>
+              </span>
+            </div>
+            <p class="palette-card-desc">
+              Jump between stacks, services and commands without reaching for
+              the sidebar. Fuzzy-search everything you've defined — then
+              start, stop, restart or open logs with one keystroke.
+            </p>
+            <ul class="palette-chips">
+              <li>Fuzzy search</li>
+              <li>Start / stop</li>
+              <li>Jump to logs</li>
+              <li>Toggle theme</li>
+            </ul>
+          </article>
+
+          <article class="palette-card is-accent">
+            <div class="palette-card-head">
+              <span class="palette-num">02</span>
+              <h3 class="palette-card-title">Anywhere on your machine</h3>
+              <span class="palette-flag">Global</span>
+            </div>
+            <div class="palette-shortcut">
+              <span class="kbd-combo">
+                <kbd class="kbd-big">⌘</kbd>
+                <span class="kbd-plus">+</span>
+                <kbd class="kbd-big">⇧</kbd>
+                <span class="kbd-plus">+</span>
+                <kbd class="kbd-big">K</kbd>
+              </span>
+              <span class="kbd-alt">
+                <kbd class="inline-kbd">Ctrl</kbd>
+                <span class="kbd-plus-dim">+</span>
+                <kbd class="inline-kbd">Shift</kbd>
+                <span class="kbd-plus-dim">+</span>
+                <kbd class="inline-kbd">K</kbd>
+                <span class="kbd-alt-label">on Linux / Windows</span>
+              </span>
+            </div>
+            <p class="palette-card-desc">
+              From your editor, browser or terminal — one chord brings the
+              palette to the front even when RunHQ is hidden in the menu bar.
+              Kill a runaway worker without breaking flow.
+            </p>
+            <ul class="palette-chips">
+              <li>System-wide</li>
+              <li>Works when hidden</li>
+              <li>Re-focuses the app</li>
+              <li>No polling</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="palette-demo reveal">
+          <div class="palette-demo-chrome">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+              <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
+            </svg>
+            <span class="palette-demo-query">Search services, commands, actions…</span>
+            <span class="palette-demo-filter">filter</span>
+          </div>
+          <div class="palette-demo-filters">
+            <span class="palette-demo-chip">All</span>
+            <span class="palette-demo-chip is-active">Running</span>
+            <span class="palette-demo-chip">Stopped</span>
+            <span class="palette-demo-chip">Frontend</span>
+            <span class="palette-demo-chip">Backend</span>
+            <span class="palette-demo-chip">Database</span>
+            <span class="palette-demo-chip">Worker</span>
+          </div>
+          <div class="palette-demo-section">Stacks</div>
+          <div class="palette-demo-row is-active">
+            <span class="pd-ico">◆</span>
+            <span class="pd-name">acme-platform</span>
+            <span class="pd-meta">6 services · <span class="pd-run">4 running</span></span>
+            <span class="pd-kbd">↵</span>
+          </div>
+          <div class="palette-demo-section">Services</div>
+          <div class="palette-demo-row">
+            <span class="pd-dot is-running"></span>
+            <span class="pd-name">web</span>
+            <span class="pd-tag">NODE</span>
+            <span class="pd-meta">:3000 · pnpm dev</span>
+            <span class="pd-kbd">→</span>
+          </div>
+          <div class="palette-demo-row">
+            <span class="pd-dot is-warn"></span>
+            <span class="pd-name">api</span>
+            <span class="pd-tag">GO</span>
+            <span class="pd-meta">:8080 · go run ./cmd/api</span>
+            <span class="pd-kbd">→</span>
+          </div>
+          <div class="palette-demo-foot">
+            <span><kbd class="inline-kbd">↑↓</kbd> navigate</span>
+            <span><kbd class="inline-kbd">→</kbd> details</span>
+            <span><kbd class="inline-kbd">⇥</kbd> category</span>
+            <span><kbd class="inline-kbd">esc</kbd> close</span>
+            <span class="palette-demo-foot-brand">RunHQ</span>
+          </div>
+        </div>
+
+        <p class="palette-note reveal">
+          Every shortcut is re-bindable from
+          <strong>Settings → Shortcuts</strong> — pick whatever your muscle
+          memory already owns.
+        </p>
+      </section>
+
+      <!-- ============ FEATURES — grouped badges ============ -->
+      <section id="features" class="feats">
+        <div class="section-head reveal">
+          <span class="kicker">Everything in one window</span>
+          <h2 class="section-title">Every feature, at a glance.</h2>
+          <p class="section-sub">
+            Every badge below is shipping today — no cloud, no account, no
+            telemetry.
+          </p>
+        </div>
+
+        <div class="feats-grid reveal">
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">01</span>
+              <h3>Logs</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>Ring buffer · 10k/svc</li>
+              <li>Virtualized list</li>
+              <li>stdout + stderr</li>
+              <li>Live filter</li>
+              <li>Follow tail</li>
+              <li>ANSI color</li>
+              <li>Copy line</li>
+              <li>Jump to match</li>
+            </ul>
+          </div>
+
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">02</span>
+              <h3>Processes</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>SIGTERM → SIGKILL</li>
+              <li>Configurable grace</li>
+              <li>Per-service env</li>
+              <li>One-click restart</li>
+              <li>Keyboard-first</li>
+              <li>Command palette</li>
+              <li>Quick actions</li>
+              <li>Zero orphans</li>
+            </ul>
+          </div>
+
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">03</span>
+              <h3>Discovery</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>package.json</li>
+              <li>go.mod</li>
+              <li>Cargo.toml</li>
+              <li>pyproject.toml</li>
+              <li>.csproj</li>
+              <li>pom.xml</li>
+              <li>build.gradle</li>
+              <li>Gemfile</li>
+              <li>composer.json</li>
+              <li>compose.yaml</li>
+              <li>Port watchdog</li>
+              <li>Zombie kill</li>
+              <li>Confirm before run</li>
+              <li>Never writes to repo</li>
+            </ul>
+          </div>
+
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">04</span>
+              <h3>Projects &amp; stacks</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>Unlimited stacks</li>
+              <li>Unlimited services</li>
+              <li>Recent projects</li>
+              <li>Favorites</li>
+              <li>Quick switcher</li>
+              <li>Drag to reorder</li>
+              <li>Global search</li>
+              <li>Per-project cwd</li>
+            </ul>
+          </div>
+
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">05</span>
+              <h3>Under the hood</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>Rust core</li>
+              <li>Tauri shell</li>
+              <li>Single binary</li>
+              <li>&lt;100 MB idle RAM</li>
+              <li>No Electron</li>
+              <li>No Node runtime</li>
+              <li>No telemetry</li>
+              <li>MIT license</li>
+            </ul>
+          </div>
+
+          <div class="feat-group">
+            <div class="feat-head">
+              <span class="feat-num">06</span>
+              <h3>Platforms</h3>
+            </div>
+            <ul class="feat-badges">
+              <li>macOS 12+</li>
+              <li>Apple Silicon</li>
+              <li>Intel Macs</li>
+              <li>Ubuntu 22.04+</li>
+              <li>Debian</li>
+              <li>Fedora</li>
+              <li>Arch</li>
+              <li>Windows 10+</li>
+              <li>x86_64</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INSTALL ============ -->
+      <section id="install" class="install">
+        <div class="section-head reveal">
+          <span class="kicker">Install</span>
+          <h2 class="section-title">Get it running.</h2>
+        </div>
+
+        <div class="install-grid">
+          <div class="install-card install-card-primary reveal">
+            <div class="install-card-head">
+              <span class="install-card-tag">Recommended</span>
+              <h3 class="install-card-title">Download a release</h3>
+              <p class="install-card-desc">
+                Prebuilt binaries for macOS, Linux and Windows are published on
+                every tagged release. No toolchain required — download, install,
+                run.
+              </p>
+            </div>
+
+            <ul class="release-list">
+              <li class="release-row">
+                <span class="release-os">macOS</span>
+                <span class="release-ext"><code>.dmg</code></span>
+                <span class="release-note">Apple Silicon + Intel</span>
+              </li>
+              <li class="release-row">
+                <span class="release-os">Linux</span>
+                <span class="release-ext"><code>.AppImage</code> · <code>.deb</code></span>
+                <span class="release-note">x86_64</span>
+              </li>
+              <li class="release-row">
+                <span class="release-os">Windows</span>
+                <span class="release-ext"><code>.msi</code> · <code>.exe</code></span>
+                <span class="release-note">x86_64</span>
+              </li>
+            </ul>
+
+            <a
+              href="https://github.com/erdembas/runhq/releases/latest"
+              class="install-card-cta"
+            >
+              <span>Download latest release</span>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+
+            <div class="install-card-foot">
+              Releases are built automatically on every tag push via GitHub
+              Actions — always in sync with <code>main</code>.
+            </div>
+          </div>
+
+          <div class="install-card reveal">
+            <div class="install-card-head">
+              <span class="install-card-tag install-card-tag-muted">For hackers</span>
+              <h3 class="install-card-title">Build from source</h3>
+              <p class="install-card-desc">
+                Clone the repo, install deps, run in dev mode with hot reload,
+                or bundle your own signed release with <code>pnpm tauri:build</code>.
+              </p>
+            </div>
+
+            <div class="source-steps">
+              <div class="source-step">
+                <span class="source-step-label">Step 01 · Prereqs</span>
+                <div class="source-step-body">
+                  <a href="https://nodejs.org/">Node 20+</a>
+                  <span class="step-sep">·</span>
+                  <a href="https://pnpm.io/">pnpm 9+</a>
+                  <span class="step-sep">·</span>
+                  <a href="https://www.rust-lang.org/tools/install">Rust ≥ 1.77</a>
+                  <span class="step-sep">·</span>
+                  <a href="https://tauri.app/start/prerequisites/">Tauri deps</a>
+                </div>
+              </div>
+
+              <div class="source-step">
+                <span class="source-step-label">Step 02 · Clone &amp; install</span>
+                <div
+                  class="cmd-block"
+                  onclick="copyCmd(this, 'git clone https://github.com/erdembas/runhq.git\ncd runhq\npnpm install')"
+                >
+                  <span class="cmd-prompt">$</span>
+                  <code>git clone github.com/erdembas/runhq<br />cd runhq &amp;&amp; pnpm install</code>
+                  <span class="cmd-copy">copy</span>
+                </div>
+              </div>
+
+              <div class="source-step">
+                <span class="source-step-label">Step 03 · Run in dev</span>
+                <div class="cmd-block" onclick="copyCmd(this, 'pnpm tauri:dev')">
+                  <span class="cmd-prompt">$</span>
+                  <code>pnpm tauri:dev</code>
+                  <span class="cmd-copy">copy</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="install-card-foot">
+              Hot reload, full devtools and the same build we ship — bundle a
+              release with <code>pnpm tauri:build</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-wrap reveal">
+          <div class="pm-head">
+            <span class="kicker">Package managers</span>
+            <h3 class="pm-title">One-line install for your OS.</h3>
+          </div>
+
+          <div class="pm-grid">
+            <div class="pm-card">
+              <div class="pm-card-head">
+                <span class="pm-os">macOS</span>
+                <span class="pm-mgr">Homebrew</span>
+              </div>
+              <div
+                class="cmd-block"
+                onclick="copyCmd(this, 'brew tap erdembas/runhq\nbrew install --cask runhq')"
+              >
+                <span class="cmd-prompt">$</span>
+                <code>brew tap erdembas/runhq<br />brew install --cask runhq</code>
+                <span class="cmd-copy">copy</span>
+              </div>
+              <div class="pm-card-foot">
+                Upgrade: <code>brew upgrade --cask runhq</code>
+              </div>
+            </div>
+
+            <div class="pm-card">
+              <div class="pm-card-head">
+                <span class="pm-os">Windows</span>
+                <span class="pm-mgr">winget</span>
+              </div>
+              <div
+                class="cmd-block"
+                onclick="copyCmd(this, 'winget install erdembas.RunHQ')"
+              >
+                <span class="cmd-prompt">&gt;</span>
+                <code>winget install erdembas.RunHQ</code>
+                <span class="cmd-copy">copy</span>
+              </div>
+              <div class="pm-card-foot">
+                Upgrade: <code>winget upgrade erdembas.RunHQ</code>
+              </div>
+            </div>
+
+            <div class="pm-card">
+              <div class="pm-card-head">
+                <span class="pm-os">Linux</span>
+                <span class="pm-mgr">.deb · AppImage</span>
+              </div>
+              <div
+                class="cmd-block"
+                onclick="copyCmd(this, 'gh release download --repo erdembas/runhq --pattern \"*.deb\"\nsudo dpkg -i RunHQ_*_amd64.deb')"
+              >
+                <span class="cmd-prompt">$</span>
+                <code
+                  >gh release download --repo erdembas/runhq --pattern "*.deb"<br
+                  />sudo dpkg -i RunHQ_*_amd64.deb</code
+                >
+                <span class="cmd-copy">copy</span>
+              </div>
+              <div class="pm-card-foot">
+                Prefer a browser? —
+                <a href="https://github.com/erdembas/runhq/releases/latest"
+                  >download the .deb or AppImage from releases</a
+                >.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FINAL CTA ============ -->
+      <section class="cta">
+        <div class="cta-glow" aria-hidden="true"></div>
+        <div class="cta-inner reveal">
+          <h2 class="cta-title">Every project. One window.</h2>
+          <p class="cta-sub">Free · MIT · macOS · Linux · Windows</p>
+          <div class="cta-actions">
+            <a href="https://github.com/erdembas/runhq/releases/latest" class="btn btn-primary">
+              Get RunHQ
+            </a>
+            <a href="https://github.com/erdembas/runhq" class="btn btn-text">
+              Contribute on GitHub
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          </div>
+          <p class="cta-note">Free forever. No credit card. No account.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img src="icon.png" alt="" width="20" height="20" />
+          <span>RunHQ</span>
+        </div>
+        <div class="footer-meta">
+          <span>MIT licensed</span>
+          <span class="footer-sep">·</span>
+          <a href="https://github.com/erdembas/runhq">GitHub</a>
+          <span class="footer-sep">·</span>
+          <a href="https://github.com/erdembas/runhq/issues">Issues</a>
+          <span class="footer-sep">·</span>
+          <span>Built by <a href="https://github.com/erdembas">@erdembas</a></span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function copyCmd(el, text) {
+        text = text.replace(/\\n/g, '\n');
+        var h = el.querySelector('.cmd-copy');
+        if (!h) return doCopy(text, function () {});
+        var orig = h.textContent;
+        doCopy(text, function () {
+          h.textContent = 'copied';
+          el.classList.add('is-copied');
+          setTimeout(function () {
+            h.textContent = orig;
+            el.classList.remove('is-copied');
+          }, 1500);
+        });
+      }
+
+      function doCopy(text, cb) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard
+            .writeText(text)
+            .then(cb)
+            .catch(function () {
+              fallbackCopy(text, cb);
+            });
+        } else {
+          fallbackCopy(text, cb);
+        }
+      }
+
+      function fallbackCopy(text, cb) {
+        var a = document.createElement('textarea');
+        a.value = text;
+        a.style.position = 'fixed';
+        a.style.opacity = '0';
+        document.body.appendChild(a);
+        a.select();
+        try {
+          document.execCommand('copy');
+        } catch (e) {}
+        document.body.removeChild(a);
+        cb();
+      }
+
+      var obs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-revealed');
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -60px 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach(function (el) {
+        obs.observe(el);
+      });
+
+      (function () {
+        var words = [
+          'Node.js service',
+          'Go binary',
+          'Python app',
+          '.NET worker',
+          'Rust daemon',
+          'Docker stack',
+          'Ruby job',
+          'Java server',
+        ];
+        var el = document.querySelector('.tw-text');
+        if (!el) return;
+        var wi = 0,
+          ci = 0,
+          deleting = false;
+        function tick() {
+          var w = words[wi];
+          if (!deleting) {
+            ci++;
+            el.textContent = w.slice(0, ci);
+            if (ci === w.length) {
+              deleting = true;
+              setTimeout(tick, 1600);
+              return;
+            }
+          } else {
+            ci--;
+            el.textContent = w.slice(0, ci);
+            if (ci === 0) {
+              deleting = false;
+              wi = (wi + 1) % words.length;
+              setTimeout(tick, 260);
+              return;
+            }
+          }
+          setTimeout(tick, deleting ? 35 : 70 + Math.random() * 40);
+        }
+        tick();
+      })();
+
+      var nav = document.querySelector('.nav');
+      if (nav) {
+        var onScroll = function () {
+          if (window.scrollY > 8) nav.classList.add('is-scrolled');
+          else nav.classList.remove('is-scrolled');
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      }
+    </script>
+  </body>
+</html>

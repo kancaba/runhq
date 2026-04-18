@@ -1,0 +1,20 @@
+# CODEOWNERS — automatic reviewer assignment
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default — everything
+* @erdembas
+
+# Rust core library
+/crates/runhq-core/ @erdembas
+
+# Tauri backend (Rust + IPC)
+/apps/desktop/src-tauri/ @erdembas
+
+# Frontend (React + TypeScript)
+/apps/desktop/src/ @erdembas
+
+# CI / GitHub Actions
+/.github/ @erdembas
+
+# Documentation
+/docs/ @erdembas

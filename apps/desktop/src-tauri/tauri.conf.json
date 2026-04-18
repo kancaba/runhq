@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "RunHQ",
+  "version": "0.1.0",
+  "identifier": "io.github.erdembas.runhq",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @runhq/desktop dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm --filter @runhq/desktop build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "RunHQ",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 640,
+        "minHeight": 480,
+        "center": true,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": { "x": 14, "y": 18 },
+        "transparent": false,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: asset: https://asset.localhost; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1421"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "category": "DeveloperTool",
+    "shortDescription": "The universal local service orchestrator.",
+    "longDescription": "RunHQ manages native local dev processes (Node, Go, .NET, Python, Docker Compose) from a single UI — with port watchdog, unified logs, and stacks.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://runhq.dev/api/updates/latest",
+        "https://github.com/erdembas/runhq/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEFBMEYzQzM5M0M5RTE3REEKUldUYUY1NDhPVHdQcW5ja3JrQXlXdy91Tzd2aERuOUdLQW5JdTBIOFFRZTdETmNQZTR3M0Y2clQK"
+    }
+  }
+}

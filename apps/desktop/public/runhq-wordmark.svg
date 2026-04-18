@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" role="img" aria-label="RunHQ">
+  <defs>
+    <linearGradient id="rhq-wm-ember" x1="0" y1="0" x2="0" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#FDBA74"/>
+    </linearGradient>
+    <radialGradient id="rhq-wm-gloss" cx="30" cy="25" r="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <g transform="translate(0,10)">
+    <rect width="120" height="120" rx="26" ry="26" fill="url(#rhq-wm-ember)"/>
+    <rect width="120" height="120" rx="26" ry="26" fill="url(#rhq-wm-gloss)"/>
+    <rect x="0.5" y="0.5" width="119" height="119" rx="25.5" ry="25.5"
+          fill="none" stroke="#FFFFFF" stroke-opacity="0.22"/>
+
+    <g transform="translate(22,22) scale(3.17)">
+      <path d="M13 2 L3 14 L12 14 L11 22 L21 10 L12 10 Z" fill="#FFF7ED"/>
+    </g>
+  </g>
+
+  <g font-family="Inter, 'SF Pro Display', system-ui, sans-serif" font-weight="800"
+     font-size="64" letter-spacing="-1.5">
+    <text x="148" y="92" fill="currentColor">Run<tspan fill="#FB923C">HQ</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,99 @@
+import { useMemo } from 'react';
+import { Loader2, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/cn';
+import type { CommandEntry, ProjectCandidate } from '@/types';
+import { NODE_PACKAGE_MANAGERS, rewritePmInCmd, type NodePackageManager } from './types';
+
+export function DetectedSuggestions({
+  loading,
+  detected,
+  existingCmds,
+  onPick,
+  selectedPm,
+  onPmChange,
+}: {
+  loading: boolean;
+  detected: ProjectCandidate | null;
+  existingCmds: CommandEntry[];
+  onPick: (suggestion: { label: string; cmd: string }) => void;
+  selectedPm: NodePackageManager;
+  onPmChange: (pm: NodePackageManager) => void;
+}) {
+  const isNode = detected?.runtime === 'node';
+
+  const rewrittenSuggestions = useMemo(() => {
+    if (!detected) return [];
+    if (!isNode) return detected.suggestions;
+    return detected.suggestions.map((s) => ({
+      ...s,
+      cmd: rewritePmInCmd(s.cmd, selectedPm),
+    }));
+  }, [detected, isNode, selectedPm]);
+
+  if (loading && !detected) {
+    return (
+      <div className="text-fg-dim flex items-center gap-1.5 text-[10px]">
+        <Loader2 className="h-2.5 w-2.5 animate-spin" />
+        <span>Inspecting folder…</span>
+      </div>
+    );
+  }
+
+  if (!detected || detected.suggestions.length === 0) return null;
+
+  return (
+    <div className="border-border/60 bg-surface-muted/40 rounded-app-sm space-y-1.5 border border-dashed p-2">
+      <div className="text-fg-muted flex items-center gap-1 text-[9px] tracking-wide uppercase">
+        <Sparkles className="text-accent h-2.5 w-2.5" />
+        <span>Detected</span>
+        <span className="bg-accent/10 text-accent rounded-app-sm px-1 py-0.5 text-[9px] tracking-normal normal-case">
+          {detected.runtime}
+        </span>
+        <span className="text-fg-dim tracking-normal normal-case">{detected.name}</span>
+      </div>
+      {isNode && (
+        <div className="flex items-center gap-0.5">
+          {NODE_PACKAGE_MANAGERS.map((pm) => (
+            <button
+              key={pm}
+              type="button"
+              onClick={() => onPmChange(pm)}
+              className={cn(
+                'rounded-app-sm border px-1.5 py-0.5 text-[9px] transition',
+                selectedPm === pm
+                  ? 'border-accent/60 bg-accent/10 text-accent'
+                  : 'border-border/60 bg-surface-muted text-fg-dim hover:text-fg-muted',
+              )}
+            >
+              {pm}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1">
+        {rewrittenSuggestions.map((s) => {
+          const active = existingCmds.some((c) => c.name === s.label);
+          return (
+            <button
+              key={`${s.label}:${s.cmd}`}
+              type="button"
+              onClick={() => onPick(s)}
+              title={active ? `${s.cmd} (already added)` : `Add as command: ${s.cmd}`}
+              className={cn(
+                'rounded-app-sm group inline-flex max-w-full items-center gap-1 border px-1.5 py-0.5 text-[10px] transition',
+                active
+                  ? 'border-accent/60 bg-accent/10 text-accent'
+                  : 'border-border/60 bg-surface-muted text-fg-muted hover:border-accent/40 hover:text-fg',
+              )}
+            >
+              <span className="truncate">{s.label}</span>
+              <span className="text-fg-dim group-hover:text-fg-muted truncate text-[9px]">
+                {s.cmd}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/runhq.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RunHQ Quick Action</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Dark-first: RunHQ's canonical look is dark, and the command
+      // palette is overlaid on top of the main window — flashing white
+      // before the React tree mounts is jarring. We only drop out of
+      // dark when the user has explicitly opted into light via the
+      // shared `rhq-theme` localStorage key. (`null`/`'system'` →
+      // dark, since the main app's dark-default is what the user sees
+      // behind us regardless of OS preference.)
+      (function () {
+        try {
+          var saved = localStorage.getItem('rhq-theme');
+          if (saved !== 'light') document.documentElement.classList.add('dark');
+        } catch (_) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        background: transparent;
+        overflow: hidden;
+        height: 100%;
+        -webkit-app-region: no-drag;
+      }
+      #root {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/quick-action-main.tsx"></script>
+  </body>
+</html>

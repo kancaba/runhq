@@ -1,0 +1,39 @@
+{
+  "name": "runhq",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The universal local service orchestrator.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://runhq.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erdembas/runhq.git"
+  },
+  "packageManager": "pnpm@9.14.4",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @runhq/desktop dev",
+    "build": "pnpm --filter @runhq/desktop build",
+    "tauri:dev": "pnpm --filter @runhq/desktop tauri:dev",
+    "tauri:build": "pnpm --filter @runhq/desktop tauri:build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,html}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,html}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "prettier": "^3.4.1",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "typescript": "^5.7.2"
+  }
+}

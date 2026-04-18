@@ -1,0 +1,405 @@
+import { useMemo, useState } from 'react';
+import {
+  Activity,
+  AlertTriangle,
+  CircleSlash,
+  FolderSearch,
+  Layers,
+  Loader2,
+  Pencil,
+  Play,
+  Plus,
+  RotateCcw,
+  Square,
+  Trash2,
+  Zap,
+} from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Button } from '@/components/ui/Button';
+import { Kbd } from '@/components/ui/Kbd';
+import { useAppStore } from '@/store/useAppStore';
+import { ipc } from '@/lib/ipc';
+import { cn } from '@/lib/cn';
+import { categoryForTags, type Category } from '@/lib/categories';
+import type { ServiceDef, Status } from '@/types';
+import { ServiceCard } from './ServiceCard';
+import { StatTile } from './StatTile';
+import { SectionHeader, HeaderAction } from './SectionHeader';
+
+interface Props {
+  onScan: () => void;
+}
+
+type Group = { category: Category; services: ServiceDef[] };
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 5) return 'Still up';
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+export function Dashboard({ onScan }: Props) {
+  const services = useAppStore((s) => s.services);
+  const statuses = useAppStore((s) => s.statuses);
+  const ports = useAppStore((s) => s.ports);
+  const appVersion = useAppStore((s) => s.appVersion);
+  const openEditor = useAppStore((s) => s.openEditor);
+  const stacks = useAppStore((s) => s.stacks);
+  const removeStack = useAppStore((s) => s.removeStack);
+  const openStackEditor = useAppStore((s) => s.openStackEditor);
+  const setSelectedStack = useAppStore((s) => s.setSelectedStack);
+  const upsertStack = useAppStore((s) => s.upsertStack);
+
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const stats = useMemo(() => {
+    let running = 0,
+      starting = 0,
+      stopped = 0,
+      failed = 0;
+    for (const svc of services) {
+      const st: Status = statuses[svc.id]?.status ?? 'stopped';
+      if (st === 'running') running++;
+      else if (st === 'starting' || st === 'stopping') starting++;
+      else if (st === 'crashed' || st === 'exited') failed++;
+      else stopped++;
+    }
+    return { running, starting, stopped, failed };
+  }, [services, statuses]);
+
+  const groups = useMemo<Group[]>(() => {
+    const stackServiceIds = new Set(stacks.flatMap((st) => st.service_ids));
+    const byKey = new Map<string, Group>();
+    for (const svc of services) {
+      if (stackServiceIds.has(svc.id)) continue;
+      const category = categoryForTags(svc.tags);
+      const existing = byKey.get(category.key);
+      if (existing) existing.services.push(svc);
+      else byKey.set(category.key, { category, services: [svc] });
+    }
+    for (const g of byKey.values()) g.services.sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(byKey.values());
+  }, [services, stacks]);
+
+  const total = services.length;
+
+  if (total === 0) {
+    return (
+      <div className="bg-surface relative flex flex-1 items-center justify-center overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(600px 400px at 50% 30%, rgb(var(--accent) / 0.06), transparent 70%)',
+          }}
+        />
+        <div className="glass animate-fade-in relative max-w-sm p-8 text-center">
+          <div className="bg-accent/10 border-accent/30 mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border">
+            <Zap className="text-accent h-7 w-7" />
+          </div>
+          <h2 className="text-fg text-xl font-semibold tracking-tight">Ready when you are</h2>
+          <p className="text-fg-muted mt-2 text-[13px] leading-relaxed">
+            Point RunHQ at a project folder to auto-detect scripts, or add your first service
+            manually.
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<FolderSearch className="h-4 w-4" />}
+              onClick={onScan}
+            >
+              Scan Projects
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={() => openEditor(null)}
+            >
+              Add service{' '}
+              <Kbd className="ml-1.5 border-transparent bg-white/20 text-white/90">⌘N</Kbd>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const healthPct = total > 0 ? Math.round((stats.running / total) * 100) : 0;
+  const hasRunning = stats.running > 0;
+
+  return (
+    <div className="bg-surface relative flex flex-1 flex-col overflow-y-auto">
+      {hasRunning && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[340px]"
+          style={{
+            background:
+              'radial-gradient(900px 340px at 50% -20%, rgb(var(--accent) / 0.09), transparent 70%)',
+          }}
+        />
+      )}
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-8 py-8">
+        <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="text-fg-dim mb-2 flex items-center gap-2 text-[11px] font-semibold tracking-[0.22em] uppercase">
+              <span className="from-accent to-accent-hover border-accent/40 inline-flex h-5 w-5 items-center justify-center rounded-md border bg-gradient-to-br text-white shadow-[0_2px_8px_-2px_rgb(var(--accent)/0.6)]">
+                <Zap className="h-3 w-3" />
+              </span>
+              <span className="text-fg">RunHQ</span>
+              {appVersion && (
+                <span className="text-fg-dim normal-case opacity-70">v{appVersion}</span>
+              )}
+              <span className="text-fg-dim mx-1 opacity-30">·</span>
+              <span className="text-fg-dim tracking-normal normal-case opacity-70">
+                {greeting()}
+              </span>
+            </div>
+            <h1 className="text-fg text-[28px] leading-tight font-semibold tracking-tight">
+              {hasRunning ? (
+                <>
+                  <span className="text-status-running tabular-nums">{stats.running}</span>
+                  <span className="text-fg"> service{stats.running > 1 ? 's' : ''} running</span>
+                </>
+              ) : stats.failed > 0 ? (
+                <>
+                  <span className="text-status-error tabular-nums">{stats.failed}</span>
+                  <span className="text-fg"> needs attention</span>
+                </>
+              ) : (
+                <span className="text-fg">All quiet</span>
+              )}
+            </h1>
+            <p className="text-fg-muted mt-1.5 flex items-center gap-1.5 text-[13px]">
+              <span className="tabular-nums">{total}</span> configured
+              <span className="text-fg-dim">·</span>
+              <span className="tabular-nums">{ports.length}</span> listening ports
+              {stats.starting > 0 && (
+                <>
+                  <span className="text-fg-dim">·</span>
+                  <span className="text-status-starting inline-flex items-center gap-1 tabular-nums">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    {stats.starting} starting
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<FolderSearch className="h-4 w-4" />}
+              onClick={onScan}
+            >
+              Scan Projects
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<Layers className="h-4 w-4" />}
+              onClick={() => openStackEditor(null)}
+            >
+              New stack
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={() => openEditor(null)}
+            >
+              New service
+            </Button>
+          </div>
+        </header>
+
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatTile
+            label="Running"
+            value={stats.running}
+            tone="running"
+            icon={<Activity className="h-3.5 w-3.5" />}
+            badge={`${healthPct}%`}
+            active={stats.running > 0}
+          />
+          <StatTile
+            label="Starting"
+            value={stats.starting}
+            tone="starting"
+            icon={<Loader2 className={cn('h-3.5 w-3.5', stats.starting > 0 && 'animate-spin')} />}
+            active={stats.starting > 0}
+          />
+          <StatTile
+            label="Stopped"
+            value={stats.stopped}
+            tone="stopped"
+            icon={<CircleSlash className="h-3.5 w-3.5" />}
+          />
+          <StatTile
+            label="Failed"
+            value={stats.failed}
+            tone={stats.failed > 0 ? 'error' : 'stopped'}
+            icon={<AlertTriangle className="h-3.5 w-3.5" />}
+            active={stats.failed > 0}
+          />
+        </section>
+
+        {total > 0 && (
+          <div className="glass flex items-center gap-3 px-4 py-2.5">
+            <span className="text-fg-dim text-[11px] font-semibold tracking-[0.12em] uppercase">
+              Uptime
+            </span>
+            <div className="bg-surface-muted relative h-1.5 flex-1 overflow-hidden rounded-full">
+              <div
+                className={cn(
+                  'h-full rounded-full transition-all duration-700',
+                  hasRunning
+                    ? 'from-accent via-accent to-status-running bg-gradient-to-r'
+                    : 'bg-border-strong',
+                )}
+                style={{ width: `${Math.max(healthPct, hasRunning ? 4 : 0)}%` }}
+              />
+            </div>
+            <span className="text-fg w-10 text-right text-[12px] font-semibold tabular-nums">
+              {healthPct}%
+            </span>
+          </div>
+        )}
+
+        {stacks.map((stack) => {
+          const stackServices = stack.service_ids
+            .map((sid) => services.find((s) => s.id === sid))
+            .filter(Boolean) as ServiceDef[];
+          const runningCount = stackServices.filter(
+            (svc) => (statuses[svc.id]?.status ?? 'stopped') === 'running',
+          ).length;
+          const anyRunning = runningCount > 0;
+          return (
+            <section
+              key={stack.id}
+              className="group/section"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+              }}
+              onDrop={async (e) => {
+                e.preventDefault();
+                const svcId = e.dataTransfer.getData('application/x-service-id');
+                if (!svcId || stack.service_ids.includes(svcId)) return;
+                const updated = { ...stack, service_ids: [...stack.service_ids, svcId] };
+                await ipc.updateStack(updated);
+                upsertStack(updated);
+              }}
+            >
+              <SectionHeader
+                icon={<Layers className="h-3.5 w-3.5" />}
+                label={stack.name}
+                tone="accent"
+                count={stackServices.length}
+                runningCount={runningCount}
+                onClick={() => setSelectedStack(stack.id)}
+                actions={
+                  <>
+                    {anyRunning ? (
+                      <HeaderAction
+                        title="Stop all"
+                        onClick={() => void ipc.stopStack(stack.id)}
+                        tone="danger"
+                      >
+                        <Square className="h-3.5 w-3.5" />
+                      </HeaderAction>
+                    ) : (
+                      <HeaderAction
+                        title="Start all"
+                        onClick={() => void ipc.startStack(stack.id)}
+                        tone="run"
+                      >
+                        <Play className="h-3.5 w-3.5" />
+                      </HeaderAction>
+                    )}
+                    <HeaderAction
+                      title="Restart all"
+                      onClick={() => void ipc.restartStack(stack.id)}
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </HeaderAction>
+                    <HeaderAction title="Edit stack" onClick={() => openStackEditor(stack)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </HeaderAction>
+                    <HeaderAction
+                      title="Delete stack"
+                      tone="danger"
+                      onClick={() => {
+                        setPendingConfirm({
+                          message: `Delete stack "${stack.name}"?`,
+                          onConfirm: async () => {
+                            setPendingConfirm(null);
+                            await ipc.removeStack(stack.id);
+                            removeStack(stack.id);
+                          },
+                        });
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </HeaderAction>
+                  </>
+                }
+              />
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {stackServices.map((svc) => (
+                  <ServiceCard key={svc.id} svc={svc} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {groups.map((group) => {
+          const runningInGroup = group.services.filter(
+            (svc) => (statuses[svc.id]?.status ?? 'stopped') === 'running',
+          ).length;
+          return (
+            <section key={group.category.key} className="group/section">
+              <SectionHeader
+                dotClass={group.category.dot}
+                label={group.category.label}
+                labelClass={group.category.color}
+                count={group.services.length}
+                runningCount={runningInGroup}
+              />
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {group.services.map((svc) => (
+                  <ServiceCard key={svc.id} svc={svc} draggable />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        <footer className="text-fg-dim mt-auto flex items-center justify-between pt-4 text-[11px]">
+          <span>Everything runs locally. No telemetry.</span>
+          <span className="flex items-center gap-1.5 opacity-70">
+            <Kbd>⌘K</Kbd>
+            <span>quick jump</span>
+          </span>
+        </footer>
+      </div>
+      {pendingConfirm && (
+        <ConfirmDialog
+          message={pendingConfirm.message}
+          onConfirm={pendingConfirm.onConfirm}
+          onCancel={() => setPendingConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}

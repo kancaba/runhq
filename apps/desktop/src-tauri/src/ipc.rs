@@ -1,0 +1,440 @@
+//! Tauri IPC command surface.
+//!
+//! Every command here is a thin adapter over [`runhq_core`]. Keep it that
+//! way — if a command grows complex logic, push the logic into the core crate
+//! where it can be unit-tested without Tauri.
+
+use std::path::PathBuf;
+
+use runhq_core::editors::{self, DetectedEditor};
+use runhq_core::error::{AppError, AppResult};
+use runhq_core::logs::LogLine;
+use runhq_core::paths;
+use runhq_core::ports::{self, ListeningPort};
+use runhq_core::process::ServiceStatus;
+use runhq_core::scanner::{self, ProjectCandidate};
+use runhq_core::state::{CommandEntry, Prefs, ServiceDef, StackDef};
+use serde::{Deserialize, Serialize};
+use tauri::State;
+
+use crate::AppState;
+
+// ---- App metadata --------------------------------------------------------
+
+#[derive(Debug, Serialize)]
+pub struct AppInfo {
+    pub version: &'static str,
+    pub state_dir: PathBuf,
+}
+
+#[tauri::command]
+pub fn app_info() -> AppResult<AppInfo> {
+    Ok(AppInfo {
+        version: env!("CARGO_PKG_VERSION"),
+        state_dir: paths::runhq_home().map_err(AppError::from)?,
+    })
+}
+
+// ---- Service CRUD --------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub struct ServiceInput {
+    pub name: String,
+    pub cwd: PathBuf,
+    #[serde(default)]
+    pub cmds: Vec<CommandEntry>,
+    #[serde(default)]
+    pub env: Vec<(String, String)>,
+    #[serde(default)]
+    pub path_override: Option<String>,
+    #[serde(default)]
+    pub pre_command: Option<String>,
+    #[serde(default)]
+    pub port: Option<u16>,
+    #[serde(default)]
+    pub tags: Vec<String>,
+    #[serde(default)]
+    pub auto_start: bool,
+    #[serde(default)]
+    pub open_browser: bool,
+    #[serde(default = "default_grace_ms")]
+    pub grace_ms: u64,
+}
+
+fn default_grace_ms() -> u64 {
+    5_000
+}
+
+#[tauri::command]
+pub fn list_services(state: State<'_, AppState>) -> AppResult<Vec<ServiceDef>> {
+    Ok(state.store.services())
+}
+
+#[tauri::command]
+pub fn add_service(input: ServiceInput, state: State<'_, AppState>) -> AppResult<ServiceDef> {
+    if input.name.trim().is_empty() {
+        return Err(AppError::Invalid("name is required".into()));
+    }
+    if input.cmds.is_empty() {
+        return Err(AppError::Invalid("at least one command is required".into()));
+    }
+    if !input.cwd.exists() {
+        return Err(AppError::Invalid(format!(
+            "cwd does not exist: {}",
+            input.cwd.display()
+        )));
+    }
+    let svc = ServiceDef {
+        id: uuid::Uuid::new_v4().to_string(),
+        name: input.name,
+        cwd: input.cwd,
+        cmds: input.cmds,
+        cmd: None,
+        args: vec![],
+        env: input.env,
+        path_override: input.path_override,
+        pre_command: input.pre_command,
+        port: input.port,
+        tags: input.tags,
+        auto_start: input.auto_start,
+        open_browser: input.open_browser,
+        grace_ms: input.grace_ms,
+    };
+    state.store.upsert_service(svc.clone()).map_err(AppError::from)?;
+    Ok(svc)
+}
+
+#[tauri::command]
+pub fn update_service(service: ServiceDef, state: State<'_, AppState>) -> AppResult<ServiceDef> {
+    state
+        .store
+        .upsert_service(service.clone())
+        .map_err(AppError::from)?;
+    Ok(service)
+}
+
+#[tauri::command]
+pub fn remove_service(id: String, state: State<'_, AppState>) -> AppResult<bool> {
+    state.store.remove_service(&id).map_err(AppError::from)
+}
+
+// ---- Scanner -------------------------------------------------------------
+
+#[tauri::command]
+pub fn scan_directory(path: PathBuf) -> AppResult<Vec<ProjectCandidate>> {
+    if !path.is_dir() {
+        return Err(AppError::Invalid(format!(
+            "not a directory: {}",
+            path.display()
+        )));
+    }
+    scanner::scan(&path)
+}
+
+#[tauri::command]
+pub fn detect_project(path: PathBuf) -> AppResult<Option<ProjectCandidate>> {
+    if !path.is_dir() {
+        return Ok(None);
+    }
+    scanner::detect_one(&path)
+}
+
+// ---- Process supervisor --------------------------------------------------
+
+#[tauri::command]
+pub async fn start_service(
+    id: String,
+    state: State<'_, AppState>,
+) -> AppResult<ServiceStatus> {
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    state.supervisor.start_all(svc).await
+}
+
+#[tauri::command]
+pub async fn start_service_cmd(
+    id: String,
+    cmd_name: String,
+    state: State<'_, AppState>,
+) -> AppResult<ServiceStatus> {
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    state.supervisor.start_cmd(svc, &cmd_name).await?;
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    Ok(state.supervisor.service_status(&svc))
+}
+
+#[tauri::command]
+pub fn stop_service(id: String, state: State<'_, AppState>) -> AppResult<ServiceStatus> {
+    state.supervisor.stop_all(&id)?;
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    Ok(state.supervisor.service_status(&svc))
+}
+
+#[tauri::command]
+pub fn stop_service_cmd(
+    id: String,
+    cmd_name: String,
+    state: State<'_, AppState>,
+) -> AppResult<ServiceStatus> {
+    state.supervisor.stop_cmd(&id, &cmd_name)?;
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    Ok(state.supervisor.service_status(&svc))
+}
+
+#[tauri::command]
+pub async fn restart_service(
+    id: String,
+    state: State<'_, AppState>,
+) -> AppResult<ServiceStatus> {
+    let _ = state.supervisor.stop_all(&id);
+    tokio::time::sleep(std::time::Duration::from_millis(400)).await;
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    state.supervisor.start_all(svc).await
+}
+
+#[tauri::command]
+pub fn service_status(id: String, state: State<'_, AppState>) -> AppResult<ServiceStatus> {
+    let svc = state
+        .store
+        .service(&id)
+        .ok_or(AppError::NotFound(id))?;
+    Ok(state.supervisor.service_status(&svc))
+}
+
+// ---- Logs ----------------------------------------------------------------
+
+#[tauri::command]
+pub fn get_logs(
+    id: String,
+    since_seq: Option<u64>,
+    limit: Option<usize>,
+    state: State<'_, AppState>,
+) -> AppResult<Vec<LogLine>> {
+    let since = since_seq.unwrap_or(0);
+    let limit = limit.unwrap_or(2_000).min(10_000);
+    Ok(if since == 0 {
+        state.supervisor.logs.snapshot(&id)
+    } else {
+        state.supervisor.logs.tail(&id, since, limit)
+    })
+}
+
+#[tauri::command]
+pub fn clear_logs(id: String, state: State<'_, AppState>) -> AppResult<()> {
+    state.supervisor.logs.clear(&id);
+    Ok(())
+}
+
+// ---- Ports ---------------------------------------------------------------
+
+#[tauri::command]
+pub fn list_ports() -> AppResult<Vec<ListeningPort>> {
+    ports::list()
+}
+
+#[tauri::command]
+pub fn kill_port(port: u16) -> AppResult<Vec<u32>> {
+    ports::kill_port(port)
+}
+
+// ---- Misc ----------------------------------------------------------------
+
+#[tauri::command]
+pub fn open_path(path: PathBuf) -> AppResult<()> {
+    tauri_plugin_opener::open_path(&path, None::<&str>)
+        .map_err(|e| AppError::Other(e.to_string()))?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn open_url(url: String) -> AppResult<()> {
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(&url)
+            .spawn()
+            .map_err(|e| AppError::Other(e.to_string()))?;
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        open::that(&url).map_err(|e| AppError::Other(e.to_string()))?;
+    }
+    Ok(())
+}
+
+// ---- Preferences ---------------------------------------------------------
+
+#[tauri::command]
+pub fn get_prefs(state: State<'_, AppState>) -> AppResult<Prefs> {
+    Ok(state.store.snapshot().prefs)
+}
+
+#[tauri::command]
+pub fn update_prefs(prefs: Prefs, state: State<'_, AppState>) -> AppResult<Prefs> {
+    state
+        .store
+        .update_prefs(|existing| *existing = prefs.clone())
+        .map_err(AppError::from)?;
+    Ok(prefs)
+}
+
+// ---- Editors -------------------------------------------------------------
+
+#[tauri::command]
+pub async fn detect_editors() -> AppResult<Vec<DetectedEditor>> {
+    Ok(editors::detect_editors().await)
+}
+
+#[tauri::command]
+pub async fn open_in_editor(command: String, path: PathBuf) -> AppResult<()> {
+    editors::open_in_editor(&command, &path).await
+}
+
+// ---- Stacks --------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+pub struct StackInput {
+    pub name: String,
+    #[serde(default)]
+    pub service_ids: Vec<String>,
+    #[serde(default)]
+    pub auto_start: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct StackStatus {
+    pub id: String,
+    pub running: u32,
+    pub total: u32,
+}
+
+#[tauri::command]
+pub fn list_stacks(state: State<'_, AppState>) -> AppResult<Vec<StackDef>> {
+    Ok(state.store.stacks())
+}
+
+#[tauri::command]
+pub fn add_stack(input: StackInput, state: State<'_, AppState>) -> AppResult<StackDef> {
+    if input.name.trim().is_empty() {
+        return Err(AppError::Invalid("name is required".into()));
+    }
+    if input.service_ids.is_empty() {
+        return Err(AppError::Invalid("at least one service is required".into()));
+    }
+    let stack = StackDef {
+        id: uuid::Uuid::new_v4().to_string(),
+        name: input.name,
+        service_ids: input.service_ids,
+        auto_start: input.auto_start,
+    };
+    state.store.upsert_stack(stack.clone()).map_err(AppError::from)?;
+    Ok(stack)
+}
+
+#[tauri::command]
+pub fn update_stack(stack: StackDef, state: State<'_, AppState>) -> AppResult<StackDef> {
+    state
+        .store
+        .upsert_stack(stack.clone())
+        .map_err(AppError::from)?;
+    Ok(stack)
+}
+
+#[tauri::command]
+pub fn remove_stack(id: String, state: State<'_, AppState>) -> AppResult<bool> {
+    state.store.remove_stack(&id).map_err(AppError::from)
+}
+
+#[tauri::command]
+pub async fn start_stack(id: String, state: State<'_, AppState>) -> AppResult<StackStatus> {
+    let stack = state
+        .store
+        .stack(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    let total = stack.service_ids.len() as u32;
+    let mut running: u32 = 0;
+    for sid in &stack.service_ids {
+        if let Some(svc) = state.store.service(sid) {
+            let _ = state.supervisor.start_all(svc.clone()).await;
+            if let Some(port) = svc.port {
+                runhq_core::ports::wait_for_port(port, std::time::Duration::from_secs(30)).await;
+            }
+        }
+    }
+    for sid in &stack.service_ids {
+        if state.supervisor.is_running(sid) {
+            running += 1;
+        }
+    }
+    Ok(StackStatus {
+        id: stack.id,
+        running,
+        total,
+    })
+}
+
+#[tauri::command]
+pub fn stop_stack(id: String, state: State<'_, AppState>) -> AppResult<StackStatus> {
+    let stack = state
+        .store
+        .stack(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    let total = stack.service_ids.len() as u32;
+    for sid in &stack.service_ids {
+        let _ = state.supervisor.stop_all(sid);
+    }
+    Ok(StackStatus {
+        id: stack.id,
+        running: 0,
+        total,
+    })
+}
+
+#[tauri::command]
+pub async fn restart_stack(id: String, state: State<'_, AppState>) -> AppResult<StackStatus> {
+    let stack = state
+        .store
+        .stack(&id)
+        .ok_or_else(|| AppError::NotFound(id.clone()))?;
+    let total = stack.service_ids.len() as u32;
+    for sid in &stack.service_ids {
+        let _ = state.supervisor.stop_all(sid);
+    }
+    tokio::time::sleep(std::time::Duration::from_millis(400)).await;
+    let mut running: u32 = 0;
+    for sid in &stack.service_ids {
+        if let Some(svc) = state.store.service(sid) {
+            let _ = state.supervisor.start_all(svc.clone()).await;
+            if let Some(port) = svc.port {
+                runhq_core::ports::wait_for_port(port, std::time::Duration::from_secs(30)).await;
+            }
+        }
+    }
+    for sid in &stack.service_ids {
+        if state.supervisor.is_running(sid) {
+            running += 1;
+        }
+    }
+    Ok(StackStatus {
+        id: stack.id,
+        running,
+        total,
+    })
+}

@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/runhq-core",
+    "apps/desktop/src-tauri",
+]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.77"
+license = "MIT"
+repository = "https://github.com/erdembas/runhq"
+authors = ["Erdem Baş <erdembas@users.noreply.github.com>"]

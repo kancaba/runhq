@@ -1,0 +1,40 @@
+# Auto-label configuration for actions/labeler
+# https://github.com/actions/labeler
+
+rust:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'crates/**'
+          - 'apps/desktop/src-tauri/**'
+          - 'Cargo.toml'
+          - 'Cargo.lock'
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'apps/desktop/src/**'
+          - 'apps/desktop/*.html'
+          - 'apps/desktop/*.css'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+          - '.github/labeler.yml'
+          - '.github/CODEOWNERS'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'docs/**'
+          - 'README.md'
+          - 'CONTRIBUTING.md'
+          - 'ROADMAP.md'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'pnpm-lock.yaml'
+          - 'Cargo.lock'
+          - '**/package.json'
+          - '**/Cargo.toml'

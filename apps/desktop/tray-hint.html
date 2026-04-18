@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/runhq.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RunHQ Hint</title>
+    <script>
+      // Dark-first boot — see quick-action.html for the full rationale.
+      (function () {
+        try {
+          var saved = localStorage.getItem('rhq-theme');
+          if (saved !== 'light') document.documentElement.classList.add('dark');
+        } catch (_) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        background: transparent;
+        overflow: hidden;
+        height: 100%;
+        -webkit-app-region: no-drag;
+      }
+      #root {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/tray-hint-main.tsx"></script>
+  </body>
+</html>
