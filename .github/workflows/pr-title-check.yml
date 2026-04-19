@@ -29,7 +29,5 @@ jobs:
             chore
             revert
           requireScope: false
-          subjectPattern: ^[A-Z].+$
-          subjectPatternError: |
-            Subject must start with an uppercase letter.
-            Example: "feat: Add Go module detection"
+          # Allow lowercase subjects — Dependabot PR titles use lowercase
+          # and Conventional Commits spec does not require capitalization.
