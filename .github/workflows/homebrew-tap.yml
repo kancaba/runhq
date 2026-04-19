@@ -95,9 +95,13 @@ jobs:
 
             app "RunHQ.app"
 
-            # RunHQ is not yet notarized (Apple Developer ID pending).
-            # Strip the quarantine xattr so first launch does not show
-            # the "damaged and can't be opened" Gatekeeper error.
+            # RunHQ ships with an ad-hoc code signature rather than an Apple
+            # Developer ID. Without this postflight, Gatekeeper would block
+            # first launch with "unidentified developer" (right-click → Open
+            # works, but it's a worse UX than a one-time xattr clear).
+            # Clearing the quarantine attribute tells macOS to skip the
+            # Gatekeeper assessment entirely — safe for apps installed via a
+            # trusted package manager.
             postflight do
               system_command "/usr/bin/xattr",
                              args: ["-cr", "#{appdir}/RunHQ.app"],
