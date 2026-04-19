@@ -596,7 +596,10 @@
 
             <div class="install-card-foot">
               Releases are built automatically on every tag push via GitHub Actions — always in sync
-              with <code>main</code>.
+              with <code>main</code>.<br /><br />
+              <strong>macOS first launch:</strong> if you see <em>"RunHQ is damaged"</em>, run
+              <code>xattr -cr /Applications/RunHQ.app</code> once. RunHQ isn't Apple-notarized yet
+              (coming soon); Homebrew installs skip this step automatically.
             </div>
           </div>
 

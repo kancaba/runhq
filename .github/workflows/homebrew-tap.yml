@@ -95,6 +95,15 @@ jobs:
 
             app "RunHQ.app"
 
+            # RunHQ is not yet notarized (Apple Developer ID pending).
+            # Strip the quarantine xattr so first launch does not show
+            # the "damaged and can't be opened" Gatekeeper error.
+            postflight do
+              system_command "/usr/bin/xattr",
+                             args: ["-cr", "#{appdir}/RunHQ.app"],
+                             sudo: false
+            end
+
             zap trash: [
               "~/Library/Application Support/com.runhq.desktop",
               "~/Library/Caches/com.runhq.desktop",

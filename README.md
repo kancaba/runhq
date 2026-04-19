@@ -53,14 +53,14 @@ Terminal tabs are a mess. Containers are heavy. You open a terminal for the web 
 
 ## Install
 
-### Homebrew (macOS)
+### Homebrew (macOS) — recommended
 
 ```bash
 brew tap erdembas/runhq
 brew install --cask runhq
 ```
 
-Upgrade later with `brew upgrade --cask runhq`.
+Upgrade later with `brew upgrade --cask runhq`. The cask removes macOS's quarantine flag automatically, so the app opens on first launch without any extra steps.
 
 ### Download from GitHub Releases
 
@@ -71,6 +71,16 @@ Grab a pre-built binary for your platform from the [latest release](https://gith
 - **Windows** — `RunHQ_<version>_x64-setup.exe` (installer) or `RunHQ_<version>_x64_en-US.msi`
 
 The app auto-updates in place — you only need to download manually once.
+
+> **macOS first launch:** if you see _"RunHQ is damaged and can't be opened"_, it's the macOS
+> Gatekeeper complaining about a missing Apple notarization. Run this once and you're good:
+>
+> ```bash
+> xattr -cr /Applications/RunHQ.app
+> ```
+>
+> RunHQ is working toward Apple Developer ID notarization — once shipped, this step will go away
+> entirely. `brew install --cask runhq` already handles this automatically.
 
 ### Build from source
 
