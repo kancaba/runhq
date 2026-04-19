@@ -14,6 +14,12 @@
   <img alt="status" src="https://img.shields.io/badge/status-MVP-yellow" />
 </p>
 
+<p align="center">
+  <a href="https://runhq.dev/">
+    <img src="docs/dashboard.png" alt="RunHQ dashboard — one window for every local service" width="100%" />
+  </a>
+</p>
+
 ---
 
 ## Why?
@@ -45,7 +51,6 @@ Terminal tabs are a mess. Containers are heavy. You open a terminal for the web 
 - **Auto-update** — in-app update banner with one-click "Update & Restart".
 - **System tray** — close hides to tray; quit from tray menu.
 
-Roadmap items (environment variables, stacks, `.runhq.json`, i18n) live in [`docs/PROJECT_DETAIL.md`](./docs/PROJECT_DETAIL.md).
 
 ## Install
 

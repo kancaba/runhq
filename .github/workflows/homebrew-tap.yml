@@ -1,0 +1,120 @@
+name: Update Homebrew Tap
+
+on:
+  release:
+    types: [published]
+  # Allow manual re-run in case hashes drift
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to sync (e.g. v0.1.0). Defaults to latest.'
+        required: false
+
+concurrency:
+  group: homebrew-tap
+  cancel-in-progress: false
+
+jobs:
+  update-cask:
+    name: Update runhq Cask
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Resolve tag
+        id: tag
+        env:
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          elif [ -n "$EVENT_TAG" ]; then
+            TAG="$EVENT_TAG"
+          else
+            TAG=$(gh release view --repo erdembas/runhq --json tagName --jq .tagName)
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
+          echo "VERSION=${TAG#v}" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: erdembas/homebrew-runhq
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+
+      - name: Compute sha256 for both architectures
+        id: sha
+        env:
+          TAG: ${{ steps.tag.outputs.TAG }}
+          VERSION: ${{ steps.tag.outputs.VERSION }}
+        run: |
+          set -euo pipefail
+
+          ARM_URL="https://github.com/erdembas/runhq/releases/download/${TAG}/RunHQ_${VERSION}_aarch64.dmg"
+          INTEL_URL="https://github.com/erdembas/runhq/releases/download/${TAG}/RunHQ_${VERSION}_x64.dmg"
+
+          echo "Fetching $ARM_URL"
+          ARM_SHA=$(curl -fsSL "$ARM_URL" | shasum -a 256 | cut -d' ' -f1)
+
+          echo "Fetching $INTEL_URL"
+          INTEL_SHA=$(curl -fsSL "$INTEL_URL" | shasum -a 256 | cut -d' ' -f1)
+
+          if [ -z "$ARM_SHA" ] || [ -z "$INTEL_SHA" ]; then
+            echo "::error::Failed to compute sha256 for one or both DMGs"
+            exit 1
+          fi
+
+          echo "ARM_SHA=$ARM_SHA" >> "$GITHUB_OUTPUT"
+          echo "INTEL_SHA=$INTEL_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Write Cask
+        env:
+          VERSION: ${{ steps.tag.outputs.VERSION }}
+          ARM_SHA: ${{ steps.sha.outputs.ARM_SHA }}
+          INTEL_SHA: ${{ steps.sha.outputs.INTEL_SHA }}
+        run: |
+          mkdir -p Casks
+          cat > Casks/runhq.rb <<CASK
+          cask "runhq" do
+            arch arm: "aarch64", intel: "x64"
+
+            version "${VERSION}"
+            sha256 arm:   "${ARM_SHA}",
+                   intel: "${INTEL_SHA}"
+
+            url "https://github.com/erdembas/runhq/releases/download/v#{version}/RunHQ_#{version}_#{arch}.dmg",
+                verified: "github.com/erdembas/runhq/"
+
+            name "RunHQ"
+            desc "Universal local service orchestrator"
+            homepage "https://runhq.dev/"
+
+            depends_on macos: ">= :ventura"
+
+            app "RunHQ.app"
+
+            zap trash: [
+              "~/Library/Application Support/com.runhq.desktop",
+              "~/Library/Caches/com.runhq.desktop",
+              "~/Library/Preferences/com.runhq.desktop.plist",
+              "~/Library/Saved Application State/com.runhq.desktop.savedState",
+            ]
+          end
+          CASK
+
+      - name: Commit and push
+        env:
+          VERSION: ${{ steps.tag.outputs.VERSION }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/runhq.rb
+          if git diff --cached --quiet; then
+            echo "Cask already up-to-date for ${VERSION}"
+            exit 0
+          fi
+          git commit -m "chore: update runhq to ${VERSION}"
+          git push
