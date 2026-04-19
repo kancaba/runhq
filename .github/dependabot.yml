@@ -113,3 +113,9 @@ updates:
       actions-all:
         patterns:
           - '*'
+    ignore:
+      # Hold major bumps of GitHub Actions; they often require Node 24 runner
+      # or breaking workflow changes. Review & bump manually.
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
