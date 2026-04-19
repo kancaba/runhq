@@ -23,15 +23,32 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,html}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,html}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,html}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --fix --max-warnings=0"
+    ],
+    "*.{json,md,css,html}": [
+      "prettier --write"
+    ],
+    "*.rs": [
+      "rustfmt --edition 2021"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^19",
+    "@commitlint/config-conventional": "^19",
     "@eslint/js": "^9.15.0",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",
     "eslint": "^9.15.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "husky": "^9",
+    "lint-staged": "^15",
     "prettier": "^3.4.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "^5.7.2"
