@@ -139,8 +139,8 @@ impl Store {
     pub fn open(home: &Path) -> Result<Self> {
         let path = paths::config_path().unwrap_or_else(|_| home.join(paths::CONFIG_FILE));
         let config = if path.exists() {
-            let raw = fs::read_to_string(&path)
-                .with_context(|| format!("reading {}", path.display()))?;
+            let raw =
+                fs::read_to_string(&path).with_context(|| format!("reading {}", path.display()))?;
             let mut cfg = serde_json::from_str::<Config>(&raw).unwrap_or_else(|err| {
                 tracing::warn!(
                     "config at {} is corrupt ({err}); starting with an empty config",

@@ -100,7 +100,10 @@ pub fn add_service(input: ServiceInput, state: State<'_, AppState>) -> AppResult
         open_browser: input.open_browser,
         grace_ms: input.grace_ms,
     };
-    state.store.upsert_service(svc.clone()).map_err(AppError::from)?;
+    state
+        .store
+        .upsert_service(svc.clone())
+        .map_err(AppError::from)?;
     Ok(svc)
 }
 
@@ -142,10 +145,7 @@ pub fn detect_project(path: PathBuf) -> AppResult<Option<ProjectCandidate>> {
 // ---- Process supervisor --------------------------------------------------
 
 #[tauri::command]
-pub async fn start_service(
-    id: String,
-    state: State<'_, AppState>,
-) -> AppResult<ServiceStatus> {
+pub async fn start_service(id: String, state: State<'_, AppState>) -> AppResult<ServiceStatus> {
     let svc = state
         .store
         .service(&id)
@@ -196,10 +196,7 @@ pub fn stop_service_cmd(
 }
 
 #[tauri::command]
-pub async fn restart_service(
-    id: String,
-    state: State<'_, AppState>,
-) -> AppResult<ServiceStatus> {
+pub async fn restart_service(id: String, state: State<'_, AppState>) -> AppResult<ServiceStatus> {
     let _ = state.supervisor.stop_all(&id);
     tokio::time::sleep(std::time::Duration::from_millis(400)).await;
     let svc = state
@@ -211,10 +208,7 @@ pub async fn restart_service(
 
 #[tauri::command]
 pub fn service_status(id: String, state: State<'_, AppState>) -> AppResult<ServiceStatus> {
-    let svc = state
-        .store
-        .service(&id)
-        .ok_or(AppError::NotFound(id))?;
+    let svc = state.store.service(&id).ok_or(AppError::NotFound(id))?;
     Ok(state.supervisor.service_status(&svc))
 }
 
@@ -344,7 +338,10 @@ pub fn add_stack(input: StackInput, state: State<'_, AppState>) -> AppResult<Sta
         service_ids: input.service_ids,
         auto_start: input.auto_start,
     };
-    state.store.upsert_stack(stack.clone()).map_err(AppError::from)?;
+    state
+        .store
+        .upsert_stack(stack.clone())
+        .map_err(AppError::from)?;
     Ok(stack)
 }
 

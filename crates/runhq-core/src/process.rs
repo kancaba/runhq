@@ -138,11 +138,7 @@ impl Supervisor {
         Ok(agg)
     }
 
-    pub async fn start_cmd(
-        &self,
-        svc: ServiceDef,
-        cmd_name: &str,
-    ) -> AppResult<ServiceStatus> {
+    pub async fn start_cmd(&self, svc: ServiceDef, cmd_name: &str) -> AppResult<ServiceStatus> {
         let entry = svc
             .cmds
             .iter()
@@ -190,8 +186,7 @@ impl Supervisor {
 
     pub fn is_running(&self, svc_id: &str) -> bool {
         let map = self.running.lock();
-        map.keys()
-            .any(|k| k.starts_with(&format!("{svc_id}::")))
+        map.keys().any(|k| k.starts_with(&format!("{svc_id}::")))
     }
 
     // ---- Single command lifecycle ------------------------------------------
@@ -387,7 +382,8 @@ impl Supervisor {
                 entry.commands.push(final_cmd);
             }
             let svc_id = entry.id.clone();
-            let agg = Status::aggregate(&entry.commands.iter().map(|c| c.status).collect::<Vec<_>>());
+            let agg =
+                Status::aggregate(&entry.commands.iter().map(|c| c.status).collect::<Vec<_>>());
             entry.status = agg;
             task_sink.emit_status(&*entry);
             // Ensure map has the updated entry
@@ -414,17 +410,15 @@ impl Supervisor {
             error: None,
         };
         let mut map = self.statuses.lock();
-        let status_entry = map
-            .entry(svc.id.clone())
-            .or_insert_with(|| ServiceStatus {
-                id: svc.id.clone(),
-                status: Status::Stopped,
-                pid: None,
-                started_at_ms: None,
-                exit_code: None,
-                error: None,
-                commands: vec![],
-            });
+        let status_entry = map.entry(svc.id.clone()).or_insert_with(|| ServiceStatus {
+            id: svc.id.clone(),
+            status: Status::Stopped,
+            pid: None,
+            started_at_ms: None,
+            exit_code: None,
+            error: None,
+            commands: vec![],
+        });
         if let Some(existing) = status_entry
             .commands
             .iter_mut()

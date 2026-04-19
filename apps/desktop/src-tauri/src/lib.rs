@@ -314,19 +314,17 @@ pub fn run() {
                 .build()?;
 
             let qa_win = qa_window.clone();
-            qa_window.on_window_event(move |event| {
-                match event {
-                    tauri::WindowEvent::Focused(false) => {
-                        let _ = qa_win.hide();
-                        emit_palette_closed(qa_win.app_handle());
-                    }
-                    tauri::WindowEvent::CloseRequested { api, .. } => {
-                        api.prevent_close();
-                        let _ = qa_win.hide();
-                        emit_palette_closed(qa_win.app_handle());
-                    }
-                    _ => {}
+            qa_window.on_window_event(move |event| match event {
+                tauri::WindowEvent::Focused(false) => {
+                    let _ = qa_win.hide();
+                    emit_palette_closed(qa_win.app_handle());
                 }
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    api.prevent_close();
+                    let _ = qa_win.hide();
+                    emit_palette_closed(qa_win.app_handle());
+                }
+                _ => {}
             });
 
             // ---- Tray hint banner (in-app "RunHQ still running" toast) ----
@@ -343,9 +341,7 @@ pub fn run() {
             // rather than a window. Close requests just hide so we can
             // reuse the window for subsequent shows.
             let th_url = if cfg!(debug_assertions) {
-                tauri::WebviewUrl::External(
-                    "http://localhost:1420/tray-hint.html".parse().unwrap(),
-                )
+                tauri::WebviewUrl::External("http://localhost:1420/tray-hint.html".parse().unwrap())
             } else {
                 tauri::WebviewUrl::App("tray-hint.html".into())
             };
@@ -377,11 +373,13 @@ pub fn run() {
             let global_shortcut = app.global_shortcut();
 
             if let Ok(shortcut) = shortcut_str.parse::<tauri_plugin_global_shortcut::Shortcut>() {
-                if let Err(e) = global_shortcut.on_shortcut(shortcut, move |app, _shortcut, event| {
-                    if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
-                        toggle_quick_action(app);
-                    }
-                }) {
+                if let Err(e) =
+                    global_shortcut.on_shortcut(shortcut, move |app, _shortcut, event| {
+                        if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
+                            toggle_quick_action(app);
+                        }
+                    })
+                {
                     tracing::warn!("failed to register global shortcut: {e}");
                 }
             } else {

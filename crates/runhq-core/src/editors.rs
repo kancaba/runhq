@@ -131,12 +131,7 @@ pub async fn open_in_editor(command: &str, path: &Path) -> AppResult<()> {
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .spawn()
-        .map_err(|e| {
-            AppError::Other(format!(
-                "failed to launch editor '{}': {e}",
-                command
-            ))
-        })?;
+        .map_err(|e| AppError::Other(format!("failed to launch editor '{}': {e}", command)))?;
 
     tokio::spawn(async move {
         let _ = child.wait().await;

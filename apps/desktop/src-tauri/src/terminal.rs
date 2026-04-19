@@ -9,11 +9,9 @@ use std::io::{Read, Write};
 
 use anyhow::{Context, Result};
 use parking_lot::Mutex;
-use portable_pty::{
-    native_pty_system, Child, CommandBuilder, MasterPty, PtySize,
-};
-use tauri::Emitter;
+use portable_pty::{native_pty_system, Child, CommandBuilder, MasterPty, PtySize};
 use tauri::AppHandle;
+use tauri::Emitter;
 
 use crate::AppState;
 
@@ -173,9 +171,6 @@ pub fn terminal_resize(
 }
 
 #[tauri::command]
-pub fn terminal_destroy(
-    id: String,
-    state: tauri::State<'_, AppState>,
-) -> Result<(), String> {
+pub fn terminal_destroy(id: String, state: tauri::State<'_, AppState>) -> Result<(), String> {
     state.terminals.destroy(&id).map_err(|e| e.to_string())
 }

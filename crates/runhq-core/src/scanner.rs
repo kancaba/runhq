@@ -225,9 +225,7 @@ impl RuntimeProvider for DotnetProvider {
             .find(|e| {
                 let n = e.file_name();
                 let n = n.to_string_lossy();
-                n.ends_with(".csproj")
-                    || n.ends_with(".fsproj")
-                    || n.ends_with(".vbproj")
+                n.ends_with(".csproj") || n.ends_with(".fsproj") || n.ends_with(".vbproj")
             })?
             .path();
 
@@ -255,7 +253,11 @@ impl RuntimeProvider for DotnetProvider {
             });
         }
 
-        if dir.join("Tests")/*.csproj*/.is_dir() || has_file_pattern(dir, "*Tests.csproj") {
+        if dir
+            .join("Tests") /*.csproj*/
+            .is_dir()
+            || has_file_pattern(dir, "*Tests.csproj")
+        {
             suggestions.push(Suggestion {
                 label: "test".into(),
                 cmd: "dotnet test".into(),
@@ -335,8 +337,8 @@ impl RuntimeProvider for JavaGradleProvider {
     }
 
     fn detect(&self, dir: &Path) -> Option<ProjectCandidate> {
-        let is_gradle = dir.join("build.gradle").is_file()
-            || dir.join("build.gradle.kts").is_file();
+        let is_gradle =
+            dir.join("build.gradle").is_file() || dir.join("build.gradle.kts").is_file();
         if !is_gradle {
             return None;
         }
@@ -473,7 +475,8 @@ impl RuntimeProvider for RustProvider {
             return None;
         }
 
-        let name = extract_toml_field(dir.join("Cargo.toml"), "name").unwrap_or_else(|| dir_name(dir));
+        let name =
+            extract_toml_field(dir.join("Cargo.toml"), "name").unwrap_or_else(|| dir_name(dir));
 
         let mut suggestions = vec![
             Suggestion {
@@ -888,13 +891,7 @@ fn extract_go_module(dir: &Path) -> Option<String> {
     if module.is_empty() {
         return None;
     }
-    Some(
-        module
-            .split('/')
-            .next_back()
-            .unwrap_or(module)
-            .to_string(),
-    )
+    Some(module.split('/').next_back().unwrap_or(module).to_string())
 }
 
 fn extract_toml_field(path: PathBuf, field: &str) -> Option<String> {
