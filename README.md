@@ -51,7 +51,6 @@ Terminal tabs are a mess. Containers are heavy. You open a terminal for the web 
 - **Auto-update** — in-app update banner with one-click "Update & Restart".
 - **System tray** — close hides to tray; quit from tray menu.
 
-
 ## Install
 
 ### Homebrew (macOS)
@@ -75,10 +74,7 @@ The app auto-updates in place — you only need to download manually once.
 
 ### Build from source
 
-```bash
-pnpm install
-pnpm tauri:dev
-```
+See the [Development](#development) section below.
 
 ## Repository layout
 
@@ -107,23 +103,83 @@ The core crate knows nothing about Tauri. It will eventually power a `RunHQ` CLI
 
 ### Prerequisites
 
-- [Node.js 20+](https://nodejs.org/) and [pnpm 9+](https://pnpm.io/)
-- [Rust (stable)](https://www.rust-lang.org/tools/install) ≥ 1.77
-- Platform deps for Tauri: [tauri.app/start/prerequisites](https://tauri.app/start/prerequisites/)
+Core toolchain (all platforms):
+
+| Tool                | Version                              | How to get it                                                                                                    |
+| ------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **Node.js**         | ≥ 22                                 | [nodejs.org](https://nodejs.org/) or [nvm](https://github.com/nvm-sh/nvm) / [fnm](https://github.com/Schniz/fnm) |
+| **pnpm**            | 9.14.4 (pinned via `packageManager`) | `corepack enable && corepack prepare pnpm@9.14.4 --activate`                                                     |
+| **Rust**            | stable (latest)                      | [rustup.rs](https://rustup.rs/)                                                                                  |
+| **Rust components** | `rustfmt`, `clippy`                  | `rustup component add rustfmt clippy`                                                                            |
+| **Git**             | ≥ 2.30                               | system package manager                                                                                           |
+
+Platform-specific build dependencies (needed by the Tauri shell):
+
+#### macOS
+
+Xcode Command Line Tools is enough:
+
+```bash
+xcode-select --install
+```
+
+#### Linux (Debian / Ubuntu)
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
+  libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev \
+  build-essential curl wget file pkg-config libssl-dev
+```
+
+For other distros see [tauri.app/start/prerequisites](https://tauri.app/start/prerequisites/).
+
+#### Windows
+
+- **Microsoft Visual Studio C++ Build Tools** — install the "Desktop development with C++" workload from the [Visual Studio Installer](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+- **WebView2 Runtime** — pre-installed on Windows 10+; older systems can grab the [Evergreen installer](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
+
+### First-time setup
+
+```bash
+git clone https://github.com/erdembas/runhq.git
+cd runhq
+pnpm install          # installs JS deps + activates Husky git hooks
+```
+
+The `pnpm install` step also compiles the workspace's TypeScript config and registers Husky hooks that format/lint staged files on every `git commit` (see [Git hooks](#git-hooks) below).
 
 ### Common tasks
 
 ```bash
-pnpm install                    # install workspace deps
-pnpm tauri:dev                  # run the desktop app (dev mode)
-pnpm tauri:build                # bundle release binary
+pnpm tauri:dev                        # run the desktop app (hot reload)
+pnpm tauri:build                      # bundle release binary for your OS
 
-pnpm lint && pnpm typecheck     # frontend quality gates
-pnpm format                     # prettier
-cargo test -p runhq-core    # core unit/integration tests
+pnpm lint                             # ESLint
+pnpm typecheck                        # TypeScript (all packages)
+pnpm format                           # Prettier: write
+pnpm format:check                     # Prettier: verify only
+
+cargo test -p runhq-core              # core unit/integration tests
 cargo clippy --all-targets -- -D warnings
 cargo fmt --all
 ```
+
+### Git hooks
+
+Husky runs on every commit, enforced locally:
+
+- **`pre-commit`** → `lint-staged`: Prettier + ESLint (`--fix`) on staged JS/TS, Prettier on staged JSON/MD/CSS/HTML, `rustfmt` on staged `.rs` files. Only staged files are touched, so it stays fast.
+- **`commit-msg`** → `commitlint`: enforces [Conventional Commits](https://www.conventionalcommits.org/) so release automation can version the project correctly.
+
+If you ever need to bypass (use sparingly), prepend `--no-verify`:
+
+```bash
+git commit --no-verify -m "wip: noodling"
+```
+
+CI still runs the full quality gate, so skipped hooks won't land broken code on `main`.
 
 ### State directory
 

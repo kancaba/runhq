@@ -4,3 +4,7 @@
 **/src-tauri/gen/
 pnpm-lock.yaml
 CHANGELOG.md
+
+# Managed by release-please; Prettier and release-please disagree on
+# JSON formatting (trailing newline / indentation), so leave it alone.
+apps/desktop/src-tauri/tauri.conf.json
