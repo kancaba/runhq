@@ -64,19 +64,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          # Optional Apple Developer ID signing + notarization escape hatch.
-          # Default builds rely on the ad-hoc `signingIdentity: "-"` in
-          # tauri.conf.json, which is enough for brew (postflight clears the
-          # quarantine xattr) and for DMG users willing to right-click → Open.
-          # If/when every APPLE_* secret below is populated, tauri-action will
-          # automatically upgrade the build to a notarized Developer ID
-          # bundle — no further code changes required.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # macOS builds rely on the ad-hoc `signingIdentity: "-"` from
+          # tauri.conf.json — see docs/RELEASING.md for the full strategy.
+          # DO NOT set APPLE_* env vars here unconditionally: tauri-action
+          # treats any non-empty value as "a real Developer ID cert is
+          # present" and crashes `security import` if the secret is blank.
+          # To enable notarization later, gate the APPLE_* block behind an
+          # `if: env.APPLE_CERTIFICATE != ''` runner step, or split it into
+          # a conditional job — never pipe empty secrets straight to env.
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'RunHQ ${{ github.ref_name }}'

@@ -315,7 +315,9 @@ For a local dev tool used by developers, this trade-off is acceptable. If RunHQ 
 
 ### Optional upgrade path: Apple Developer ID + notarization
 
-The release workflow already forwards every relevant `APPLE_*` secret to `tauri-action`. If (and only if) every one of `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, and `APPLE_TEAM_ID` is populated, the next release will:
+> **Heads-up:** unlike an earlier iteration of this doc, `release.yml` **no longer wires `APPLE_*` secrets to `tauri-action` unconditionally**. Empty secrets would expand to blank env vars and crash `security import` on every macOS runner (the "damaged v0.1.2" incident). If you want notarization, you must explicitly add those env vars back behind an `if:` guard such as `if: env.APPLE_CERTIFICATE != ''`, or gate the whole Apple block inside a conditional job.
+
+Once the env vars are wired back in and every one of `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD`, and `APPLE_TEAM_ID` is populated, `tauri-action` will:
 
 1. Import the `.p12` into a temporary keychain on the macOS runner.
 2. Sign the `.app` with `Developer ID Application` instead of `-`.
