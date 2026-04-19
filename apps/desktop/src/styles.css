@@ -1,7 +1,45 @@
 @import '@xterm/xterm/css/xterm.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-surface: rgb(var(--surface));
+  --color-surface-raised: rgb(var(--surface-raised));
+  --color-surface-muted: rgb(var(--surface-muted));
+  --color-surface-overlay: rgb(var(--surface-overlay));
+
+  --color-border: rgb(var(--border));
+  --color-border-strong: rgb(var(--border-strong));
+
+  --color-fg: rgb(var(--fg));
+  --color-fg-muted: rgb(var(--fg-muted));
+  --color-fg-dim: rgb(var(--fg-dim));
+  --color-fg-inverse: rgb(var(--fg-inverse));
+
+  --color-accent: rgb(var(--accent));
+  --color-accent-fg: rgb(var(--accent-fg));
+  --color-accent-soft: rgb(var(--accent-soft));
+  --color-accent-hover: rgb(var(--accent-hover));
+
+  --color-status-running: rgb(var(--status-running));
+  --color-status-stopped: rgb(var(--status-stopped));
+  --color-status-error: rgb(var(--status-error));
+  --color-status-starting: rgb(var(--status-starting));
+
+  --color-cat-frontend: rgb(var(--cat-frontend));
+  --color-cat-backend: rgb(var(--cat-backend));
+  --color-cat-database: rgb(var(--cat-database));
+  --color-cat-infra: rgb(var(--cat-infra));
+  --color-cat-worker: rgb(var(--cat-worker));
+  --color-cat-tooling: rgb(var(--cat-tooling));
+  --color-cat-other: rgb(var(--cat-other));
+
+  --font-mono:
+    'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --animate-fade-in: fade-in 200ms ease-out;
+}
 
 :root {
   --surface: 250 248 246;
@@ -17,30 +55,16 @@
   --fg-dim: 148 140 130;
   --fg-inverse: 255 255 255;
 
-  /* Primary: warm ember (orange-red) */
   --accent: 234 88 12;
   --accent-hover: 194 65 12;
   --accent-fg: 255 255 255;
   --accent-soft: 255 237 213;
 
-  /* Light-mode status tokens are tuned for contrast on ivory surfaces:
-     - running: emerald-600 instead of 500 — 500 green passes readably but
-       600 gives a noticeably crisper "live" feel next to the accent ember.
-     - starting: amber-600 instead of yellow-500. yellow-500 on white is
-       a well-known accessibility trap (~2.5:1 contrast); amber-600 keeps
-       the warning/caution register while crossing the 3:1 threshold for
-       large text and adjacent dot badges.
-     - error: red-600, slightly less screaming than 500 and reads as a
-       true "danger" on white without becoming pure red. */
   --status-running: 5 150 105;
   --status-stopped: 120 113 108;
   --status-error: 220 38 38;
   --status-starting: 217 119 6;
 
-  /* Category tokens use -600 shades on light so `text-cat-*` headings
-     (12px uppercase, heavy tracking) read as a colored label instead of
-     a pale tint. `bg-cat-*` tints still look right because Tailwind
-     composes them with alpha over the ivory surface. */
   --cat-frontend: 2 132 199;
   --cat-backend: 124 58 237;
   --cat-database: 5 150 105;
@@ -57,15 +81,6 @@
 }
 
 :root.dark {
-  /* Neutral grayscale surfaces. Previously these tokens carried a subtle
-     purple/blue cast (B channel consistently higher than R/G), which read as
-     a blue tint on large filled areas. Flat grays keep focus on the warm
-     ember accent.
-
-     Hierarchy re-tuned to match the sidebar's effective tone (raised/60 over
-     surface ≈ 18): modals and large chrome sit in the 18 range, and raised
-     is pushed a notch higher so popovers still read as "floating" when they
-     appear on top of a dialog. */
   --surface: 12 12 12;
   --surface-muted: 15 15 15;
   --surface-overlay: 18 18 18;
@@ -79,7 +94,6 @@
   --fg-dim: 108 100 92;
   --fg-inverse: 12 12 12;
 
-  /* Primary: vivid ember on dark */
   --accent: 251 146 60;
   --accent-hover: 253 186 116;
   --accent-fg: 20 10 4;
@@ -127,8 +141,6 @@ body {
   cursor: default;
 }
 
-/* Native desktop feel: chrome elements are not selectable, but text content is.
-   Inputs, textareas, logs, code and anything marked `.select-text` stay selectable. */
 input,
 textarea,
 [contenteditable='true'],
@@ -151,13 +163,6 @@ a,
   cursor: default;
 }
 
-/* HTML5 drag & drop on WebKit (Tauri / Safari).
- *
- * The body-wide `user-select: none` above implicitly sets
- * `-webkit-user-drag: none` on descendants, which silently kills the
- * dragstart event on any element even if it has `draggable="true"`.
- * We have to restore it on every draggable element, and give it its own
- * text-layer rules so the OS can render a drag preview. */
 [draggable='true'] {
   -webkit-user-drag: element;
   -webkit-user-select: none;
@@ -179,7 +184,6 @@ pre,
   z-index: 1;
 }
 
-/* Subtle background texture for dark mode (radial warmth, not a gimmick) */
 :root.dark body {
   background:
     radial-gradient(1200px 600px at 12% -10%, rgb(var(--accent) / 0.06), transparent 60%),
@@ -203,11 +207,6 @@ pre,
   background: rgb(var(--border-strong) / 0.85);
 }
 
-/* Overlay scrollbar: the scrollbar track floats above content instead of
-   reserving layout width. Keeps sticky headers flush to the right edge even
-   while scrolling, and matches the "invisible until needed" feel of native
-   macOS scrollbars. WebKit's non-standard `overflow: overlay` is the cleanest
-   way to express this. */
 .overlay-scroll {
   overflow-y: overlay;
 }
@@ -228,7 +227,6 @@ pre,
   border-radius: 4px;
 }
 
-/* ===== Panels / glass ===== */
 .glass {
   background: rgb(var(--surface-raised) / 0.7);
   backdrop-filter: blur(20px) saturate(1.4);
@@ -251,7 +249,6 @@ pre,
   border-radius: var(--radius);
 }
 
-/* Card radius helpers (so buttons/inputs feel coherent) */
 .rounded-app {
   border-radius: var(--radius);
 }
@@ -262,7 +259,6 @@ pre,
   border-radius: var(--radius-lg);
 }
 
-/* ===== Animations ===== */
 @keyframes breathe {
   0%,
   100% {
@@ -345,14 +341,12 @@ pre,
   animation: slide-in-right 180ms cubic-bezier(0.2, 0.9, 0.25, 1);
 }
 
-/* Active selection glow */
 .glow-ring {
   box-shadow:
     inset 0 0 0 1px rgb(var(--accent) / 0.35),
     0 0 16px -4px rgb(var(--accent) / 0.2);
 }
 
-/* Gradient border utility (used on cards) */
 .gradient-border {
   position: relative;
 }
@@ -374,13 +368,11 @@ pre,
   pointer-events: none;
 }
 
-/* Log cursor line highlight */
 .log-cursor-line {
   background: linear-gradient(90deg, rgb(var(--accent) / 0.1), transparent 70%);
   border-left: 2px solid rgb(var(--accent) / 0.55);
 }
 
-/* Quick-action floating panel */
 .quick-action-panel {
   background: rgb(var(--surface-raised));
   border: 1.5px solid rgb(var(--border-strong));
@@ -391,7 +383,6 @@ pre,
     0 0 80px -20px rgb(var(--accent) / 0.18);
 }
 
-/* Warm primary button (the signature ember button) */
 .btn-primary {
   background: linear-gradient(180deg, rgb(var(--accent)) 0%, rgb(var(--accent-hover)) 100%);
   color: rgb(var(--accent-fg));
@@ -416,7 +407,6 @@ pre,
   filter: brightness(0.97);
 }
 
-/* Neutral "chrome" button — subtle, inspired by modern app toolbars */
 .btn-chrome {
   background: rgb(var(--surface-raised));
   color: rgb(var(--fg));
@@ -431,7 +421,6 @@ pre,
   border-color: rgb(var(--border-strong));
 }
 
-/* Service badge used next to log lines (bright like the reference) */
 .svc-badge {
   display: inline-flex;
   align-items: center;

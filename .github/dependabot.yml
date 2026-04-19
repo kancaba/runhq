@@ -59,11 +59,6 @@ updates:
       - dependency-name: '*'
         update-types:
           - 'version-update:semver-major'
-      # prettier-plugin-tailwindcss 0.7+ requires Tailwind v4.
-      # Hold at 0.6.x until the project migrates to Tailwind v4.
-      - dependency-name: 'prettier-plugin-tailwindcss'
-        versions:
-          - '>=0.7.0'
 
   - package-ecosystem: 'cargo'
     directory: '/'
