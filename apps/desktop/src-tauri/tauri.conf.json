@@ -53,6 +53,11 @@
     ],
     "macOS": {
       "signingIdentity": "-"
+    },
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      }
     }
   },
   "plugins": {
