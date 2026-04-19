@@ -60,7 +60,7 @@ brew tap erdembas/runhq
 brew install --cask runhq
 ```
 
-Upgrade later with `brew upgrade --cask runhq`. The cask removes macOS's quarantine flag automatically, so the app opens on first launch without any extra steps.
+Upgrade later with `brew upgrade --cask runhq`. The cask clears macOS's quarantine attribute automatically on install, so RunHQ opens on first launch with no warnings or terminal tricks.
 
 ### Download from GitHub Releases
 
@@ -72,15 +72,16 @@ Grab a pre-built binary for your platform from the [latest release](https://gith
 
 The app auto-updates in place — you only need to download manually once.
 
-> **macOS first launch:** if you see _"RunHQ is damaged and can't be opened"_, it's the macOS
-> Gatekeeper complaining about a missing Apple notarization. Run this once and you're good:
+> **macOS direct-DMG first launch:** because RunHQ is ad-hoc signed rather than notarized with an
+> Apple Developer ID, double-clicking the app will show _"RunHQ can't be opened because it is
+> from an unidentified developer"_. Either right-click → **Open** once, or run this one-liner to
+> skip the Gatekeeper check entirely:
 >
 > ```bash
 > xattr -cr /Applications/RunHQ.app
 > ```
 >
-> RunHQ is working toward Apple Developer ID notarization — once shipped, this step will go away
-> entirely. `brew install --cask runhq` already handles this automatically.
+> `brew install --cask runhq` does this for you — recommended if you prefer zero friction.
 
 ### Build from source
 
