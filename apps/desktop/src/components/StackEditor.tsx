@@ -165,7 +165,7 @@ export function StackEditor({ stack, onClose }: Props) {
                       {svc.name}
                     </span>
                     {svc.port != null && (
-                      <span className="text-accent tabular-nums text-[11px]">:{svc.port}</span>
+                      <span className="text-accent text-[11px] tabular-nums">:{svc.port}</span>
                     )}
                     <IconButton
                       label="Remove"
@@ -204,7 +204,7 @@ export function StackEditor({ stack, onClose }: Props) {
                       {svc.name}
                     </span>
                     {svc.port != null && (
-                      <span className="text-accent tabular-nums text-[11px]">:{svc.port}</span>
+                      <span className="text-accent text-[11px] tabular-nums">:{svc.port}</span>
                     )}
                     <Plus className="text-fg-dim h-3.5 w-3.5 shrink-0 opacity-0 transition group-hover:opacity-100" />
                   </button>
@@ -226,9 +226,7 @@ export function StackEditor({ stack, onClose }: Props) {
  * light mode readable (where raised == overlay == pure white).
  */
 function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="border-border rounded-app-sm overflow-hidden border">{children}</div>
-  );
+  return <div className="border-border rounded-app-sm overflow-hidden border">{children}</div>;
 }
 
 function CardHeader({
@@ -247,11 +245,9 @@ function CardHeader({
       <div className="flex items-center gap-1.5">
         {icon}
         <span>{title}</span>
-        <span className="tabular-nums normal-case tracking-normal">{count}</span>
+        <span className="tracking-normal normal-case tabular-nums">{count}</span>
       </div>
-      {hint && (
-        <span className="text-fg-dim text-[10px] normal-case tracking-normal">{hint}</span>
-      )}
+      {hint && <span className="text-fg-dim text-[10px] tracking-normal normal-case">{hint}</span>}
     </div>
   );
 }

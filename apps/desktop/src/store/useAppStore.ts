@@ -125,7 +125,8 @@ function loadSidebarPrefs(): SidebarPrefs {
   }
   try {
     const raw = window.localStorage.getItem(SIDEBAR_PREFS_KEY);
-    if (!raw) return { statusFilter: 'all', groupBy: 'none', categoryFilter: [], runtimeFilter: [] };
+    if (!raw)
+      return { statusFilter: 'all', groupBy: 'none', categoryFilter: [], runtimeFilter: [] };
     const parsed = JSON.parse(raw) as Partial<SidebarPrefs>;
     return {
       statusFilter:
@@ -133,9 +134,7 @@ function loadSidebarPrefs(): SidebarPrefs {
           ? parsed.statusFilter
           : 'all',
       groupBy:
-        parsed.groupBy === 'category' ||
-        parsed.groupBy === 'runtime' ||
-        parsed.groupBy === 'status'
+        parsed.groupBy === 'category' || parsed.groupBy === 'runtime' || parsed.groupBy === 'status'
           ? parsed.groupBy
           : 'none',
       categoryFilter: Array.isArray(parsed.categoryFilter) ? parsed.categoryFilter : [],
@@ -182,7 +181,10 @@ function loadSections(): SectionsSnapshot {
     const sections = Array.isArray(parsed.sections)
       ? parsed.sections.filter(
           (s): s is Section =>
-            !!s && typeof s.id === 'string' && typeof s.name === 'string' && typeof s.color === 'string',
+            !!s &&
+            typeof s.id === 'string' &&
+            typeof s.name === 'string' &&
+            typeof s.color === 'string',
         )
       : [];
     return {
@@ -413,9 +415,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const s = get();
     const trimmed = name.trim();
     if (!trimmed) return;
-    const nextSections = s.sections.map((sec) =>
-      sec.id === id ? { ...sec, name: trimmed } : sec,
-    );
+    const nextSections = s.sections.map((sec) => (sec.id === id ? { ...sec, name: trimmed } : sec));
     set({ sections: nextSections });
     saveSections({
       sections: nextSections,

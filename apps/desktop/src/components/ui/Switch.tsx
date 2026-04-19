@@ -38,16 +38,14 @@ export function Switch({
       onClick={() => onChange(!checked)}
       className={cn(
         'relative inline-flex h-[18px] w-[30px] shrink-0 items-center rounded-full border transition',
-        checked
-          ? 'bg-accent border-accent'
-          : 'bg-surface-muted border-border',
+        checked ? 'bg-accent border-accent' : 'bg-surface-muted border-border',
         disabled && 'cursor-not-allowed opacity-50',
       )}
     >
       <span
         className={cn(
           'absolute top-1/2 h-[12px] w-[12px] -translate-y-1/2 rounded-full shadow-sm transition',
-          checked ? 'left-[15px] bg-accent-fg' : 'left-[2px] bg-fg-muted',
+          checked ? 'bg-accent-fg left-[15px]' : 'bg-fg-muted left-[2px]',
         )}
       />
     </button>

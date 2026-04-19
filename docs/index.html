@@ -8,10 +8,7 @@
       name="description"
       content="One window to start, stop, monitor, and debug every local dev service — Node, Go, .NET, Python, Docker — without containers. 100% local, <100MB RAM."
     />
-    <meta
-      property="og:title"
-      content="RunHQ — The native process orchestrator for local dev"
-    />
+    <meta property="og:title" content="RunHQ — The native process orchestrator for local dev" />
     <meta
       property="og:description"
       content="One window to rule all your local dev services. Native, local, offline. No telemetry, no cloud, no account."
@@ -62,10 +59,7 @@
           <a href="https://github.com/erdembas/runhq">GitHub</a>
         </nav>
         <div class="nav-actions">
-          <a
-            href="https://github.com/erdembas/runhq/releases/latest"
-            class="nav-cta"
-          >
+          <a href="https://github.com/erdembas/runhq/releases/latest" class="nav-cta">
             Get RunHQ
           </a>
         </div>
@@ -80,25 +74,19 @@
           <h1 class="hero-title">
             Run every
             <span class="tw-wrap">
-              <span class="tw-text" aria-live="polite"></span><span
-                class="tw-cursor"
-                aria-hidden="true"
-              ></span>
+              <span class="tw-text" aria-live="polite"></span
+              ><span class="tw-cursor" aria-hidden="true"></span>
             </span>
             <br />
             from one window.
           </h1>
           <p class="hero-lead">
-            <strong>Dozens of projects. Hundreds of services.</strong> One
-            native app to start, stop, tail logs and watch ports — no
-            containers, no cloud, no account.
+            <strong>Dozens of projects. Hundreds of services.</strong> One native app to start,
+            stop, tail logs and watch ports — no containers, no cloud, no account.
           </p>
 
           <div class="hero-ctas">
-            <a
-              href="https://github.com/erdembas/runhq/releases/latest"
-              class="btn btn-primary"
-            >
+            <a href="https://github.com/erdembas/runhq/releases/latest" class="btn btn-primary">
               Get RunHQ
             </a>
             <a href="#features" class="btn btn-text">
@@ -112,11 +100,7 @@
                 stroke-width="2"
                 aria-hidden="true"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M5 12h14M13 6l6 6-6 6"
-                />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </a>
           </div>
@@ -191,10 +175,22 @@
               <h3 class="plane-title">Observe</h3>
             </div>
             <div class="plane-preview pv-logs">
-              <div class="pv-log"><span class="pv-t">12:04</span><span class="pv-s pv-s-e">web</span>Ready · <span class="pv-ok">localhost:3000</span></div>
-              <div class="pv-log"><span class="pv-t">12:04</span><span class="pv-s pv-s-b">api</span>GET /orders <span class="pv-ok">200</span> · 42ms</div>
-              <div class="pv-log is-hl"><span class="pv-t">12:05</span><span class="pv-s pv-s-r">api</span><span class="pv-w">warn</span> slow query 312ms</div>
-              <div class="pv-log"><span class="pv-t">12:05</span><span class="pv-s pv-s-e">web</span>HMR · OrderList.tsx</div>
+              <div class="pv-log">
+                <span class="pv-t">12:04</span><span class="pv-s pv-s-e">web</span>Ready ·
+                <span class="pv-ok">localhost:3000</span>
+              </div>
+              <div class="pv-log">
+                <span class="pv-t">12:04</span><span class="pv-s pv-s-b">api</span>GET /orders
+                <span class="pv-ok">200</span> · 42ms
+              </div>
+              <div class="pv-log is-hl">
+                <span class="pv-t">12:05</span><span class="pv-s pv-s-r">api</span
+                ><span class="pv-w">warn</span> slow query 312ms
+              </div>
+              <div class="pv-log">
+                <span class="pv-t">12:05</span><span class="pv-s pv-s-e">web</span>HMR ·
+                OrderList.tsx
+              </div>
             </div>
           </article>
 
@@ -204,10 +200,22 @@
               <h3 class="plane-title">Run</h3>
             </div>
             <div class="plane-preview pv-run">
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">web</span><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span></div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">api</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span></div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">worker</span><code class="pv-cmd">dotnet run</code><span class="pv-port">—</span></div>
-              <div class="pv-svc"><span class="svc-dot is-warn"></span><span class="pv-name">postgres</span><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span></div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">web</span
+                ><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">api</span
+                ><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">worker</span
+                ><code class="pv-cmd">dotnet run</code><span class="pv-port">—</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-warn"></span><span class="pv-name">postgres</span
+                ><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span>
+              </div>
             </div>
           </article>
 
@@ -217,10 +225,22 @@
               <h3 class="plane-title">Discover</h3>
             </div>
             <div class="plane-preview pv-scan">
-              <div class="pv-scan-row"><span class="dc-ico">node</span><code class="pv-cmd">pnpm dev</code><span class="pv-meta">package.json</span></div>
-              <div class="pv-scan-row"><span class="dc-ico">go</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-meta">go.mod</span></div>
-              <div class="pv-scan-row"><span class="dc-ico">py</span><code class="pv-cmd">uv run train.py</code><span class="pv-meta">pyproject.toml</span></div>
-              <div class="pv-scan-row"><span class="dc-ico">dk</span><code class="pv-cmd">docker compose up</code><span class="pv-meta">compose.yaml</span></div>
+              <div class="pv-scan-row">
+                <span class="dc-ico">node</span><code class="pv-cmd">pnpm dev</code
+                ><span class="pv-meta">package.json</span>
+              </div>
+              <div class="pv-scan-row">
+                <span class="dc-ico">go</span><code class="pv-cmd">go run ./cmd/api</code
+                ><span class="pv-meta">go.mod</span>
+              </div>
+              <div class="pv-scan-row">
+                <span class="dc-ico">py</span><code class="pv-cmd">uv run train.py</code
+                ><span class="pv-meta">pyproject.toml</span>
+              </div>
+              <div class="pv-scan-row">
+                <span class="dc-ico">dk</span><code class="pv-cmd">docker compose up</code
+                ><span class="pv-meta">compose.yaml</span>
+              </div>
             </div>
           </article>
 
@@ -235,10 +255,22 @@
                 <span class="pv-stack-count">4 / 6 running</span>
                 <span class="pv-stack-play">▶ Play all</span>
               </div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">postgres</span><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span></div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">redis</span><code class="pv-cmd">redis-server</code><span class="pv-port">:6379</span></div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">api</span><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span></div>
-              <div class="pv-svc"><span class="svc-dot is-running"></span><span class="pv-name">web</span><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span></div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">postgres</span
+                ><code class="pv-cmd">docker compose up db</code><span class="pv-port">:5432</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">redis</span
+                ><code class="pv-cmd">redis-server</code><span class="pv-port">:6379</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">api</span
+                ><code class="pv-cmd">go run ./cmd/api</code><span class="pv-port">:8080</span>
+              </div>
+              <div class="pv-svc">
+                <span class="svc-dot is-running"></span><span class="pv-name">web</span
+                ><code class="pv-cmd">pnpm dev</code><span class="pv-port">:3000</span>
+              </div>
             </div>
           </article>
         </div>
@@ -248,16 +280,13 @@
       <section class="persona" aria-label="Who RunHQ is for">
         <div class="persona-inner reveal">
           <span class="persona-line">
-            <span class="persona-ico">◆</span> Solo devs juggling a dozen
-            client repos.
+            <span class="persona-ico">◆</span> Solo devs juggling a dozen client repos.
           </span>
           <span class="persona-line">
-            <span class="persona-ico">◆</span> Platform teams with polyglot
-            monorepos.
+            <span class="persona-ico">◆</span> Platform teams with polyglot monorepos.
           </span>
           <span class="persona-line">
-            <span class="persona-ico">◆</span> Anyone tired of six terminal
-            tabs.
+            <span class="persona-ico">◆</span> Anyone tired of six terminal tabs.
           </span>
         </div>
       </section>
@@ -268,9 +297,8 @@
           <span class="kicker">Keyboard-first</span>
           <h2 class="section-title">Summon RunHQ from anywhere.</h2>
           <p class="section-sub">
-            A command palette that follows your fingers. Open it inside the
-            app, or pull it up from any other window — no context switch, no
-            mouse.
+            A command palette that follows your fingers. Open it inside the app, or pull it up from
+            any other window — no context switch, no mouse.
           </p>
         </div>
 
@@ -294,9 +322,9 @@
               </span>
             </div>
             <p class="palette-card-desc">
-              Jump between stacks, services and commands without reaching for
-              the sidebar. Fuzzy-search everything you've defined — then
-              start, stop, restart or open logs with one keystroke.
+              Jump between stacks, services and commands without reaching for the sidebar.
+              Fuzzy-search everything you've defined — then start, stop, restart or open logs with
+              one keystroke.
             </p>
             <ul class="palette-chips">
               <li>Fuzzy search</li>
@@ -330,9 +358,8 @@
               </span>
             </div>
             <p class="palette-card-desc">
-              From your editor, browser or terminal — one chord brings the
-              palette to the front even when RunHQ is hidden in the menu bar.
-              Kill a runaway worker without breaking flow.
+              From your editor, browser or terminal — one chord brings the palette to the front even
+              when RunHQ is hidden in the menu bar. Kill a runaway worker without breaking flow.
             </p>
             <ul class="palette-chips">
               <li>System-wide</li>
@@ -393,8 +420,7 @@
 
         <p class="palette-note reveal">
           Every shortcut is re-bindable from
-          <strong>Settings → Shortcuts</strong> — pick whatever your muscle
-          memory already owns.
+          <strong>Settings → Shortcuts</strong> — pick whatever your muscle memory already owns.
         </p>
       </section>
 
@@ -404,8 +430,7 @@
           <span class="kicker">Everything in one window</span>
           <h2 class="section-title">Every feature, at a glance.</h2>
           <p class="section-sub">
-            Every badge below is shipping today — no cloud, no account, no
-            telemetry.
+            Every badge below is shipping today — no cloud, no account, no telemetry.
           </p>
         </div>
 
@@ -534,9 +559,8 @@
               <span class="install-card-tag">Recommended</span>
               <h3 class="install-card-title">Download a release</h3>
               <p class="install-card-desc">
-                Prebuilt binaries for macOS, Linux and Windows are published on
-                every tagged release. No toolchain required — download, install,
-                run.
+                Prebuilt binaries for macOS, Linux and Windows are published on every tagged
+                release. No toolchain required — download, install, run.
               </p>
             </div>
 
@@ -558,19 +582,24 @@
               </li>
             </ul>
 
-            <a
-              href="https://github.com/erdembas/runhq/releases/latest"
-              class="install-card-cta"
-            >
+            <a href="https://github.com/erdembas/runhq/releases/latest" class="install-card-cta">
               <span>Download latest release</span>
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </a>
 
             <div class="install-card-foot">
-              Releases are built automatically on every tag push via GitHub
-              Actions — always in sync with <code>main</code>.
+              Releases are built automatically on every tag push via GitHub Actions — always in sync
+              with <code>main</code>.
             </div>
           </div>
 
@@ -579,8 +608,8 @@
               <span class="install-card-tag install-card-tag-muted">For hackers</span>
               <h3 class="install-card-title">Build from source</h3>
               <p class="install-card-desc">
-                Clone the repo, install deps, run in dev mode with hot reload,
-                or bundle your own signed release with <code>pnpm tauri:build</code>.
+                Clone the repo, install deps, run in dev mode with hot reload, or bundle your own
+                signed release with <code>pnpm tauri:build</code>.
               </p>
             </div>
 
@@ -602,10 +631,17 @@
                 <span class="source-step-label">Step 02 · Clone &amp; install</span>
                 <div
                   class="cmd-block"
-                  onclick="copyCmd(this, 'git clone https://github.com/erdembas/runhq.git\ncd runhq\npnpm install')"
+                  onclick="
+                    copyCmd(
+                      this,
+                      'git clone https://github.com/erdembas/runhq.git\ncd runhq\npnpm install',
+                    )
+                  "
                 >
                   <span class="cmd-prompt">$</span>
-                  <code>git clone github.com/erdembas/runhq<br />cd runhq &amp;&amp; pnpm install</code>
+                  <code
+                    >git clone github.com/erdembas/runhq<br />cd runhq &amp;&amp; pnpm install</code
+                  >
                   <span class="cmd-copy">copy</span>
                 </div>
               </div>
@@ -621,8 +657,8 @@
             </div>
 
             <div class="install-card-foot">
-              Hot reload, full devtools and the same build we ship — bundle a
-              release with <code>pnpm tauri:build</code>.
+              Hot reload, full devtools and the same build we ship — bundle a release with
+              <code>pnpm tauri:build</code>.
             </div>
           </div>
         </div>
@@ -647,9 +683,7 @@
                 <code>brew tap erdembas/runhq<br />brew install --cask runhq</code>
                 <span class="cmd-copy">copy</span>
               </div>
-              <div class="pm-card-foot">
-                Upgrade: <code>brew upgrade --cask runhq</code>
-              </div>
+              <div class="pm-card-foot">Upgrade: <code>brew upgrade --cask runhq</code></div>
             </div>
 
             <div class="pm-card">
@@ -657,17 +691,12 @@
                 <span class="pm-os">Windows</span>
                 <span class="pm-mgr">winget</span>
               </div>
-              <div
-                class="cmd-block"
-                onclick="copyCmd(this, 'winget install erdembas.RunHQ')"
-              >
+              <div class="cmd-block" onclick="copyCmd(this, 'winget install erdembas.RunHQ')">
                 <span class="cmd-prompt">&gt;</span>
                 <code>winget install erdembas.RunHQ</code>
                 <span class="cmd-copy">copy</span>
               </div>
-              <div class="pm-card-foot">
-                Upgrade: <code>winget upgrade erdembas.RunHQ</code>
-              </div>
+              <div class="pm-card-foot">Upgrade: <code>winget upgrade erdembas.RunHQ</code></div>
             </div>
 
             <div class="pm-card">
@@ -677,12 +706,17 @@
               </div>
               <div
                 class="cmd-block"
-                onclick="copyCmd(this, 'gh release download --repo erdembas/runhq --pattern \"*.deb\"\nsudo dpkg -i RunHQ_*_amd64.deb')"
+                onclick="
+                  copyCmd(
+                    this,
+                    'gh release download --repo erdembas/runhq --pattern &quot;*.deb&quot;\nsudo dpkg -i RunHQ_*_amd64.deb',
+                  )
+                "
               >
                 <span class="cmd-prompt">$</span>
                 <code
-                  >gh release download --repo erdembas/runhq --pattern "*.deb"<br
-                  />sudo dpkg -i RunHQ_*_amd64.deb</code
+                  >gh release download --repo erdembas/runhq --pattern "*.deb"<br />sudo dpkg -i
+                  RunHQ_*_amd64.deb</code
                 >
                 <span class="cmd-copy">copy</span>
               </div>
@@ -709,7 +743,15 @@
             </a>
             <a href="https://github.com/erdembas/runhq" class="btn btn-text">
               Contribute on GitHub
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </a>

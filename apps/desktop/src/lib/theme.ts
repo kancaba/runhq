@@ -20,10 +20,7 @@ export const THEME_STORAGE_KEY = 'rhq-theme';
 const THEME_EVENT = 'runhq://theme-changed';
 
 function prefersDark(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 export function effectiveTheme(theme: Theme): 'light' | 'dark' {
@@ -66,9 +63,7 @@ export async function broadcastTheme(theme: Theme): Promise<void> {
  * can decide whether to feed it back into state (main app) or simply
  * re-apply the class (palette, tray hint).
  */
-export function subscribeTheme(
-  onChange: (theme: Theme) => void,
-): () => void {
+export function subscribeTheme(onChange: (theme: Theme) => void): () => void {
   let unlisten: (() => void) | null = null;
   let disposed = false;
   listen<{ theme: Theme }>(THEME_EVENT, (e) => {

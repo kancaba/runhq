@@ -112,10 +112,7 @@ export function SidebarFilterMenu() {
       const rect = btn.getBoundingClientRect();
       const viewportW = window.innerWidth;
       const viewportH = window.innerHeight;
-      const left = Math.min(
-        Math.max(8, rect.right - POPOVER_W),
-        viewportW - POPOVER_W - 8,
-      );
+      const left = Math.min(Math.max(8, rect.right - POPOVER_W), viewportW - POPOVER_W - 8);
       let top = rect.bottom + GAP;
       // If the popover would overflow the bottom, flip above the trigger.
       const popH = popoverRef.current?.offsetHeight ?? 420;
@@ -301,9 +298,7 @@ function FilterMenuBody({
                     key={c.key}
                     checked={categoryFilter.includes(c.key)}
                     onToggle={() => toggleCategory(c.key)}
-                    leading={
-                      <span className={cn('h-1.5 w-1.5 rounded-full', c.dot)} aria-hidden />
-                    }
+                    leading={<span className={cn('h-1.5 w-1.5 rounded-full', c.dot)} aria-hidden />}
                     label={c.label}
                     count={c.count}
                     tone={c as Category}

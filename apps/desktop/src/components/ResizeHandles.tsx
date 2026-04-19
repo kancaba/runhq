@@ -42,11 +42,7 @@ const CORNER = 18;
 
 export function ResizeHandles() {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-0 z-[60]"
-      data-resize-handles
-    >
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[60]" data-resize-handles>
       {/* Edges (drawn first so corners paint on top) */}
       <div
         onPointerDown={startResize('North')}
