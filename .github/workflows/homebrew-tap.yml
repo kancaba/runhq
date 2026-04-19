@@ -26,6 +26,7 @@ jobs:
         env:
           EVENT_TAG: ${{ github.event.release.tag_name }}
           INPUT_TAG: ${{ github.event.inputs.tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -n "$INPUT_TAG" ]; then
             TAG="$INPUT_TAG"
@@ -36,8 +37,6 @@ jobs:
           fi
           echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
           echo "VERSION=${TAG#v}" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout homebrew tap
         uses: actions/checkout@v4
