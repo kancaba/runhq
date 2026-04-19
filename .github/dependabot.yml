@@ -6,43 +6,110 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'monday'
-    open-pull-requests-limit: 10
+      time: '04:00'
+      timezone: 'Europe/Istanbul'
+    open-pull-requests-limit: 5
     labels:
       - 'dependencies'
       - 'frontend'
     commit-message:
       prefix: 'chore(deps)'
+      include: 'scope'
     groups:
-      dev-dependencies:
+      react:
         patterns:
-          - '@types/*'
-          - 'eslint*'
-          - 'prettier*'
-          - 'typescript*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      build-tooling:
+        patterns:
           - 'vite*'
           - '@vitejs/*'
+          - 'typescript*'
+          - 'eslint*'
+          - 'prettier*'
           - 'tailwindcss*'
+          - 'postcss*'
+          - 'autoprefixer*'
+      tauri:
+        patterns:
+          - '@tauri-apps/*'
+      types:
+        patterns:
+          - '@types/*'
+        exclude-patterns:
+          - '@types/react'
+          - '@types/react-dom'
+      prod-minor-patch:
+        patterns:
+          - '*'
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+      dev-minor-patch:
+        patterns:
+          - '*'
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'cargo'
     directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
-    open-pull-requests-limit: 10
+      time: '04:00'
+      timezone: 'Europe/Istanbul'
+    open-pull-requests-limit: 5
     labels:
       - 'dependencies'
       - 'rust'
     commit-message:
       prefix: 'chore(deps)'
+      include: 'scope'
+    groups:
+      tauri-rust:
+        patterns:
+          - 'tauri*'
+      serde:
+        patterns:
+          - 'serde*'
+      tokio:
+        patterns:
+          - 'tokio*'
+      cargo-minor-patch:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
       day: 'monday'
-    open-pull-requests-limit: 5
+      time: '04:00'
+      timezone: 'Europe/Istanbul'
+    open-pull-requests-limit: 2
     labels:
       - 'dependencies'
       - 'ci'
     commit-message:
       prefix: 'ci(deps)'
+      include: 'scope'
+    groups:
+      actions-all:
+        patterns:
+          - '*'
