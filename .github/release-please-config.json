@@ -15,8 +15,8 @@
           "path": "apps/desktop/src-tauri/tauri.conf.json",
           "jsonpath": "$.version"
         },
-        "apps/desktop/src-tauri/Cargo.toml",
-        "crates/runhq-core/Cargo.toml"
+        { "type": "generic", "path": "apps/desktop/src-tauri/Cargo.toml" },
+        { "type": "generic", "path": "crates/runhq-core/Cargo.toml" }
       ]
     }
   },
