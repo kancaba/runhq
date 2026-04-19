@@ -19,9 +19,9 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
@@ -70,9 +70,9 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile=false
+      - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - name: Check formatting
         run: cargo fmt --package runhq-desktop --check
