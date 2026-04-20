@@ -23,7 +23,7 @@ export function renderRow(item: ListItem, i: number, deps: RenderRowDeps): React
     return (
       <div
         key={`hdr-${item.label}-${i}`}
-        className="text-fg-dim border-border/20 border-t px-4 pt-3 pb-1 text-[9px] font-semibold tracking-wider uppercase"
+        className="text-fg-dim border-border/20 border-t px-4 pt-3 pb-1 text-[9px] font-semibold tracking-wider uppercase first:border-t-0 first:pt-1"
       >
         {item.label}
       </div>

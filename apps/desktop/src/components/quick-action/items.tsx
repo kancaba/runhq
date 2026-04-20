@@ -284,6 +284,7 @@ export function buildItems(deps: BuildItemsDeps): ListItem[] {
   ].filter((a) => !q || a.label.toLowerCase().includes(q) || a.subtitle.toLowerCase().includes(q));
 
   if (appActions.length > 0 && (filter === 'all' || q)) {
+    result.push({ type: 'header', label: 'Actions' });
     result.push(...appActions);
   }
 

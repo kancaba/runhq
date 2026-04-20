@@ -112,18 +112,7 @@ export function QuickActionBar() {
         refreshStatus,
         focusMainWindow,
       }),
-    [
-      services,
-      stacks,
-      cmdStatuses,
-      query,
-      filter,
-      expandedService,
-      expandedStack,
-      getCmds,
-      hide,
-      refreshStatus,
-    ],
+    [services, stacks, query, filter, expandedService, expandedStack, getCmds, hide, refreshStatus],
   );
 
   useEffect(() => {
@@ -362,7 +351,7 @@ export function QuickActionBar() {
           </div>
         )}
 
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto py-1.5">
           {items.length === 0 && (
             <div className="text-fg-dim py-12 text-center text-[12px]">
               {inDrill
