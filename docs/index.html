@@ -37,7 +37,13 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    <!-- Cache-bust query string: the previous deploy baked a 1-year
+         `immutable` Cache-Control header on /style.css (see docs/_headers
+         history), which stranded users on whichever Cloudflare edge had
+         cached the stale copy. Changing the URL forces every edge + every
+         browser to treat this as a net-new resource and re-fetch. Bump
+         this token whenever docs/style.css is materially changed. -->
+    <link rel="stylesheet" href="style.css?v=0.2.0" />
   </head>
   <body>
     <div class="page-bg" aria-hidden="true">
