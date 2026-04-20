@@ -494,8 +494,8 @@ pub fn run() {
             // Ctrl elsewhere) without forcing a migration write on the
             // user's config file.
             let raw_shortcut = store.snapshot().prefs.shortcuts.quick_action.clone();
-            let shortcut_str = if raw_shortcut.starts_with("Cmd+") {
-                format!("CmdOrCtrl+{}", &raw_shortcut["Cmd+".len()..])
+            let shortcut_str = if let Some(rest) = raw_shortcut.strip_prefix("Cmd+") {
+                format!("CmdOrCtrl+{rest}")
             } else {
                 raw_shortcut
             };
