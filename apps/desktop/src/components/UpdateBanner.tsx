@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { AlertCircle, Loader2, RotateCw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, RotateCw } from 'lucide-react';
 import { check, type Update } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
+import { exit, relaunch } from '@tauri-apps/plugin-process';
 
 /**
  * Bottom-of-window banner that surfaces in-app updates.
@@ -21,6 +21,13 @@ type UpdateState =
   | { phase: 'available'; version: string }
   | { phase: 'downloading'; version: string; loaded: number; total: number | null }
   | { phase: 'installing'; version: string }
+  // `installed` means the new bundle is already swapped in but we couldn't
+  // auto-relaunch — most commonly because the *currently running* binary was
+  // built without the `process:default` ACL entry. The update itself is not
+  // a failure; the user just has to quit and reopen. Surfacing this as its
+  // own phase (instead of folding it into `error`) keeps us from telling a
+  // scary "Update failed" lie when the install actually succeeded.
+  | { phase: 'installed'; version: string }
   | { phase: 'error'; version: string; message: string };
 
 function formatBytes(n: number): string {
@@ -62,6 +69,9 @@ export function UpdateBanner() {
   const install = async () => {
     let update = updateRef.current;
     let version = '';
+
+    // Phase 1: download + swap the bundle. Any throw here is a genuine install
+    // failure — the old binary is still in place and Retry makes sense.
     try {
       if (!update) {
         update = await check();
@@ -87,11 +97,6 @@ export function UpdateBanner() {
           setState({ phase: 'installing', version });
         }
       });
-
-      // downloadAndInstall resolves after the bundle has been swapped in.
-      // Relaunch is the last step — if it throws, we surface it so the user
-      // can quit/restart manually instead of being stuck on an install screen.
-      await relaunch();
     } catch (err) {
       console.error('update install failed', err);
       updateRef.current = null;
@@ -100,6 +105,29 @@ export function UpdateBanner() {
         version,
         message: err instanceof Error ? err.message : String(err),
       });
+      return;
+    }
+
+    // Phase 2: relaunch. If this throws, the bundle is already swapped in, so
+    // it's not an install failure — we fall back to asking the user to quit
+    // manually instead of lying with a red "Update failed" banner.
+    try {
+      await relaunch();
+    } catch (err) {
+      console.warn('auto-relaunch blocked; user must quit manually', err);
+      setState({ phase: 'installed', version });
+    }
+  };
+
+  const quit = async () => {
+    try {
+      await exit(0);
+    } catch (err) {
+      // `exit` and `relaunch` share the same `process:default` ACL grant, so
+      // if relaunch was blocked exit is blocked too. The inline copy on the
+      // banner already tells the user how to quit — swallow the error rather
+      // than flipping back to a failure state the user can't act on.
+      console.warn('exit blocked; user must quit via menu shortcut', err);
     }
   };
 
@@ -165,6 +193,18 @@ export function UpdateBanner() {
           </>
         )}
 
+        {state.phase === 'installed' && (
+          <>
+            <CheckCircle2 className="text-accent h-3.5 w-3.5 shrink-0" strokeWidth={2.4} />
+            <span className="truncate">
+              <span className="font-medium">RunHQ {state.version}</span> installed.
+              <span className="text-fg-muted ml-1">
+                Quit and reopen RunHQ to finish the update.
+              </span>
+            </span>
+          </>
+        )}
+
         {state.phase === 'error' && (
           <>
             <AlertCircle className="h-3.5 w-3.5 shrink-0 text-red-400" strokeWidth={2.4} />
@@ -185,6 +225,16 @@ export function UpdateBanner() {
           className="btn-primary rounded-app-sm shrink-0 px-3 py-1 text-[11px] font-medium"
         >
           Update &amp; Restart
+        </button>
+      )}
+
+      {state.phase === 'installed' && (
+        <button
+          type="button"
+          onClick={quit}
+          className="btn-primary rounded-app-sm shrink-0 px-3 py-1 text-[11px] font-medium"
+        >
+          Quit RunHQ
         </button>
       )}
 
