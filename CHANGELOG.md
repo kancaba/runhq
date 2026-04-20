@@ -5,6 +5,102 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/erdembas/runhq/compare/v0.1.3...v0.2.0) (2026-04-20)
+
+This release is a major UX polish pass on the Quick Action palette plus
+robust cross-platform editor detection — "Open in VS Code / Cursor /
+Windsurf" now works reliably even when the CLI shim isn't on `$PATH`,
+and the command palette finally reads like a native macOS Spotlight-
+class overlay.
+
+### Features
+
+* **editors:** cross-platform editor detection on macOS, Windows, and
+  Linux — scans canonical install locations (`/Applications`,
+  `%LOCALAPPDATA%\Programs`, `/snap/bin`, `/var/lib/flatpak/exports/bin`,
+  `/opt/<app>/<app>`) instead of relying on `$PATH`. VS Code, Cursor,
+  and Windsurf are now discovered for users who never ran the manual
+  "Shell Command: Install 'code' command in PATH" step.
+  ([dfa2391](https://github.com/erdembas/runhq/commit/dfa23913c2cac8d80f730d9808e08db5c27106cf))
+* **quick-action:** native-feeling command palette overhaul.
+  ([a866eeb](https://github.com/erdembas/runhq/commit/a866eeb40e098322d6367f09dce95bf3bf96f511),
+  [07eba03](https://github.com/erdembas/runhq/commit/07eba0390628a4353d1b792926dd70957dd7a17d))
+  * Re-centers on the monitor owning the main RunHQ window on every
+    show, with the window size clamped to the monitor's logical bounds
+    so the palette never renders off-screen on 13" MacBook Air
+    (1280×800) setups.
+  * Panel is vertically centered with a subtle upward bias (Raycast /
+    Spotlight convention) instead of the previous top-anchored
+    `pt-[18vh]` layout.
+  * Native-feeling search input: 15px type, tighter letter-spacing,
+    `autoCorrect` / `autoCapitalize` disabled so service and command
+    names aren't auto-munged while typing.
+  * The perpetual accent-colored focus ring that the global
+    `*:focus-visible` rule was drawing around the always-focused input
+    is suppressed via unlayered CSS — correctly beating Tailwind v4's
+    `@layer utilities` emission model.
+  * Removed the redundant right-side kbd hints (`↹ filter` / `← back`)
+    next to the input — the footer already surfaces the same shortcuts
+    and the duplication was pure visual noise.
+
+### Bug Fixes
+
+* **quick-action:** restore first action row + add "Actions" section
+  header — fixes two tightly-coupled palette bugs: the first
+  app-action ("Open RunHQ") being clipped by the filter bar border on
+  mount (the cursor-sync `scrollIntoView` was scrolling it out of
+  view), and app-actions silently bleeding into Stacks/Services
+  without a grouping label. Actions / Stacks / Services now read as
+  three distinct bands.
+  ([5c612f8](https://github.com/erdembas/runhq/commit/5c612f8cba7c67f841f3ce75ed3a693939efe9cf))
+* **quick-action:** suppress the macOS show/key-window blur race — the
+  palette no longer opens and immediately closes itself when triggered
+  while the main RunHQ window is focused. A 250ms post-show grace
+  window now swallows the transient `Focused(false)` event that
+  transparent/borderless NSWindows fire between `show()` returning and
+  the window actually becoming the key window. Same pattern Raycast /
+  Alfred / Spotlight use; legitimate click-away dismissal is
+  preserved.
+  ([d4cc6c9](https://github.com/erdembas/runhq/commit/d4cc6c973dc6da5230184c9ce85301f94490524a))
+* **quick-action:** "padding never works" class of layout bugs — the
+  legacy `* { margin: 0; padding: 0; box-sizing: border-box }`
+  universal reset has been removed from `quick-action.html`. Root
+  cause: Tailwind v4 emits utilities into `@layer utilities`, and
+  unlayered CSS unconditionally beats layered CSS regardless of
+  specificity — so the universal reset was silently nuking every
+  `px-*` / `py-*` / `m-*` utility in the palette window. Tailwind's
+  preflight, which lives inside a layer, now handles the
+  normalization properly.
+  ([07eba03](https://github.com/erdembas/runhq/commit/07eba0390628a4353d1b792926dd70957dd7a17d))
+* **editors:** resolve CLI shims outside of the GUI-launch PATH — when
+  RunHQ.app is launched from Finder or the Dock it only inherits
+  `/usr/bin:/bin:/usr/sbin:/sbin`, so `which code` / `which cursor`
+  silently returned "not found" and the Editor dropdown rendered
+  empty. Now probes `/opt/homebrew/bin`, `/usr/local/bin`,
+  `~/.local/bin`, `~/.cargo/bin`, `~/bin` directly and passes the
+  resolved absolute path to `tokio::process::Command` so launches work
+  even from minimal-PATH contexts.
+  ([c7b0275](https://github.com/erdembas/runhq/commit/c7b02750798879867e544e0ac330b17c29a25a1a))
+* **docs:** stop stranding Cloudflare Pages visitors on stale
+  `style.css` — `docs/_headers` shipped
+  `Cache-Control: public, max-age=31536000, immutable` for `/*.css`,
+  `/*.png`, `/*.svg`. `immutable` is only safe on fingerprinted URLs —
+  our docs site uses stable filenames, so after the 0.2.0 rebuild the
+  Amsterdam CF edge was returning the 2h-old pre-rebuild CSS (no
+  `hero-maas` styles, 54.3 KB) while Düsseldorf had the fresh one
+  (56.2 KB), collapsing the "Built with GLM on Huawei Cloud MaaS"
+  hero badge to an unstyled default anchor depending on which edge
+  the visitor hit. Headers now use a short TTL plus
+  `stale-while-revalidate`, and the `<link>` carries a `?v=0.2.0`
+  cache-bust so every already-poisoned edge re-fetches from origin.
+  ([a2de7d3](https://github.com/erdembas/runhq/commit/a2de7d30d4c7c7ab748072ec229de749177b3540))
+
+### Dependencies
+
+* **tailwind-merge:** 2.6.1 → 3.5.0 — aligns conflict resolution with
+  Tailwind v4's utility emission model.
+  ([07eba03](https://github.com/erdembas/runhq/commit/07eba0390628a4353d1b792926dd70957dd7a17d))
+
 ## [0.1.3](https://github.com/erdembas/runhq/compare/v0.1.2...v0.1.3) (2026-04-20)
 
 
