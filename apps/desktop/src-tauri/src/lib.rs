@@ -12,7 +12,8 @@
 pub mod ipc;
 pub mod terminal;
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use runhq_core::events::EventSink;
 use runhq_core::logs::LogLine;
@@ -64,12 +65,38 @@ pub struct AppState {
     pub terminals: TerminalManager,
 }
 
+/// Grace window after a palette show during which we suppress the
+/// focus-loss-based auto-hide. macOS fires a transient `Focused(false)`
+/// event on transparent/borderless NSWindows between `show()` and the
+/// window actually becoming key — without this guard, triggering the
+/// palette while RunHQ is the frontmost app slams it shut the same
+/// tick it opens.
+const PALETTE_SHOW_GRACE: Duration = Duration::from_millis(250);
+
+/// Tauri-managed state for the Quick Action window lifecycle.
+///
+/// Holds the timestamp of the most recent show so the blur handler can
+/// distinguish "the user actually switched apps" from "macOS is still
+/// settling key-window ownership right after we opened".
+struct QuickActionGuard {
+    last_shown: Mutex<Option<Instant>>,
+}
+
 fn toggle_quick_action(app: &tauri::AppHandle) {
     if let Some(w) = app.get_webview_window("quick-action") {
         if w.is_visible().unwrap_or(false) {
             let _ = w.hide();
             emit_palette_closed(app);
         } else {
+            // Stamp before `show()` — the `Focused(false)` race we're
+            // guarding against can fire between `show()` returning and
+            // our handler observing the state, so we need the grace
+            // window to already be armed when the event arrives.
+            if let Some(guard) = app.try_state::<QuickActionGuard>() {
+                if let Ok(mut slot) = guard.last_shown.lock() {
+                    *slot = Some(Instant::now());
+                }
+            }
             let _ = w.show();
             let _ = w.set_focus();
             // Only dim the main window when the user triggered the palette
@@ -237,6 +264,10 @@ pub fn run() {
                 terminals,
             });
 
+            app.manage(QuickActionGuard {
+                last_shown: Mutex::new(None),
+            });
+
             // ---- System Tray ----
             let show = MenuItem::with_id(app, "show", "Show RunHQ", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -316,8 +347,23 @@ pub fn run() {
             let qa_win = qa_window.clone();
             qa_window.on_window_event(move |event| match event {
                 tauri::WindowEvent::Focused(false) => {
+                    // Suppress the spurious blur event macOS emits in the
+                    // tiny window between `show()` and the palette actually
+                    // becoming key — see `PALETTE_SHOW_GRACE`. A real focus
+                    // loss (user clicked another app) fires well after the
+                    // grace window, so this only filters the race, not the
+                    // legitimate "click-away to dismiss" UX.
+                    let app = qa_win.app_handle();
+                    let within_grace = app
+                        .try_state::<QuickActionGuard>()
+                        .and_then(|g| g.last_shown.lock().ok().and_then(|slot| *slot))
+                        .map(|t| t.elapsed() < PALETTE_SHOW_GRACE)
+                        .unwrap_or(false);
+                    if within_grace {
+                        return;
+                    }
                     let _ = qa_win.hide();
-                    emit_palette_closed(qa_win.app_handle());
+                    emit_palette_closed(app);
                 }
                 tauri::WindowEvent::CloseRequested { api, .. } => {
                     api.prevent_close();
