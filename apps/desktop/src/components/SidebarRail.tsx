@@ -254,7 +254,7 @@ export function SidebarRail() {
             setSelectedStack(null);
           }}
           className={cn(
-            'rounded-app-sm flex items-center gap-2 px-1.5 py-1 transition',
+            'rounded-app-sm flex flex-1 items-center gap-2 px-1.5 py-1 transition',
             onHomeSelected ? 'text-fg' : 'text-fg-muted hover:text-fg',
           )}
         >
@@ -268,7 +268,6 @@ export function SidebarRail() {
           </span>
           {expanded && <span className="text-[13px] font-semibold tracking-tight">Dashboard</span>}
         </button>
-        <div data-tauri-drag-region className="h-5 flex-1" aria-hidden />
         {expanded && (
           <IconButton
             label={pinned ? 'Unpin sidebar' : 'Pin sidebar'}

@@ -1,4 +1,6 @@
-import { FolderOpen, Globe, Pencil, Play, RotateCcw, Square } from 'lucide-react';
+import { useState } from 'react';
+import { FolderOpen, Globe, Pencil, Play, RotateCcw, Square, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { EditorDropdown } from '@/components/EditorDropdown';
 import { StatusDot } from '@/components/ui/StatusDot';
 import { useAppStore, logKey } from '@/store/useAppStore';
@@ -45,9 +47,15 @@ export function ServiceCard({
   svc: ServiceDef;
   draggable?: boolean;
 }) {
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
   const statuses = useAppStore((s) => s.statuses);
   const setSelected = useAppStore((s) => s.setSelected);
   const openEditor = useAppStore((s) => s.openEditor);
+  const removeServiceLocal = useAppStore((s) => s.removeService);
   const logs = useAppStore((s) => s.logs);
   const st: Status = statuses[svc.id]?.status ?? 'stopped';
   const isRunning = st === 'running' || st === 'starting';
@@ -151,6 +159,22 @@ export function ServiceCard({
         <CardAction title="Edit" onClick={() => openEditor(svc)}>
           <Pencil className="h-3.5 w-3.5" />
         </CardAction>
+        <CardAction
+          title="Delete"
+          onClick={() => {
+            setPendingConfirm({
+              message: `Delete "${svc.name}"?`,
+              onConfirm: async () => {
+                setPendingConfirm(null);
+                await ipc.stopService(svc.id).catch(() => undefined);
+                await ipc.removeService(svc.id);
+                removeServiceLocal(svc.id);
+              },
+            });
+          }}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </CardAction>
         <CardAction title="Open folder" onClick={() => void ipc.openPath(svc.cwd)}>
           <FolderOpen className="h-3.5 w-3.5" />
         </CardAction>
@@ -187,6 +211,13 @@ export function ServiceCard({
             </div>
           ))}
         </div>
+      )}
+      {pendingConfirm && (
+        <ConfirmDialog
+          message={pendingConfirm.message}
+          onConfirm={pendingConfirm.onConfirm}
+          onCancel={() => setPendingConfirm(null)}
+        />
       )}
     </div>
   );

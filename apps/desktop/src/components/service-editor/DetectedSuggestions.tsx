@@ -52,17 +52,17 @@ export function DetectedSuggestions({
         <span className="text-fg-dim tracking-normal normal-case">{detected.name}</span>
       </div>
       {isNode && (
-        <div className="flex items-center gap-0.5">
+        <div className="border-border/50 bg-surface-raised/60 rounded-app-sm divide-border/40 inline-flex items-center divide-x overflow-hidden border">
           {NODE_PACKAGE_MANAGERS.map((pm) => (
             <button
               key={pm}
               type="button"
               onClick={() => onPmChange(pm)}
               className={cn(
-                'rounded-app-sm border px-1.5 py-0.5 text-[9px] transition',
+                'px-3 py-1 text-[11px] font-medium transition',
                 selectedPm === pm
-                  ? 'border-accent/60 bg-accent/10 text-accent'
-                  : 'border-border/60 bg-surface-muted text-fg-dim hover:text-fg-muted',
+                  ? 'bg-accent/15 text-accent'
+                  : 'text-fg-dim hover:bg-surface-muted hover:text-fg',
               )}
             >
               {pm}
@@ -70,7 +70,7 @@ export function DetectedSuggestions({
           ))}
         </div>
       )}
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1.5">
         {rewrittenSuggestions.map((s) => {
           const active = existingCmds.some((c) => c.name === s.label);
           return (
@@ -80,14 +80,14 @@ export function DetectedSuggestions({
               onClick={() => onPick(s)}
               title={active ? `${s.cmd} (already added)` : `Add as command: ${s.cmd}`}
               className={cn(
-                'rounded-app-sm group inline-flex max-w-full items-center gap-1 border px-1.5 py-0.5 text-[10px] transition',
+                'rounded-app-sm group inline-flex max-w-full items-center gap-1.5 border px-2.5 py-1 text-[12px] transition',
                 active
                   ? 'border-accent/60 bg-accent/10 text-accent'
                   : 'border-border/60 bg-surface-muted text-fg-muted hover:border-accent/40 hover:text-fg',
               )}
             >
-              <span className="truncate">{s.label}</span>
-              <span className="text-fg-dim group-hover:text-fg-muted truncate text-[9px]">
+              <span className="truncate font-medium">{s.label}</span>
+              <span className="text-fg-dim group-hover:text-fg-muted truncate text-[11px]">
                 {s.cmd}
               </span>
             </button>

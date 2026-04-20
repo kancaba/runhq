@@ -13,6 +13,7 @@ import {
   Search,
   Square,
   TerminalSquare,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
@@ -74,6 +75,7 @@ export function LogPanel() {
   const replaceLogs = useAppStore((s) => s.replaceLogs);
   const clearLogsLocal = useAppStore((s) => s.clearLogs);
   const openEditor = useAppStore((s) => s.openEditor);
+  const removeServiceLocal = useAppStore((s) => s.removeService);
 
   const [filter, setFilter] = useState('');
   const [follow, setFollow] = useState(true);
@@ -243,6 +245,23 @@ export function LogPanel() {
               icon={<Pencil />}
               size="sm"
               onClick={() => openEditor(service)}
+            />
+            <IconButton
+              label="Delete"
+              icon={<Trash2 />}
+              size="sm"
+              tone="danger"
+              onClick={() => {
+                setPendingConfirm({
+                  message: `Delete "${service.name}"?`,
+                  onConfirm: async () => {
+                    setPendingConfirm(null);
+                    await ipc.stopService(service.id).catch(() => undefined);
+                    await ipc.removeService(service.id);
+                    removeServiceLocal(service.id);
+                  },
+                });
+              }}
             />
             <IconButton
               label="Open folder"

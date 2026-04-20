@@ -1,6 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
   FolderOpen,
   GripVertical,
   Plus,
@@ -17,6 +33,7 @@ import { Tabs, type Tab } from '@/components/ui/Tabs';
 import { IconButton } from '@/components/ui/IconButton';
 import { Switch } from '@/components/ui/Switch';
 import { ipc } from '@/lib/ipc';
+import { cn } from '@/lib/cn';
 import { useAppStore } from '@/store/useAppStore';
 import type { CommandEntry, ProjectCandidate, ServiceDef } from '@/types';
 import {
@@ -38,13 +55,20 @@ interface Props {
 
 type TabKey = 'general' | 'env' | 'advanced';
 
+let cmdUid = 0;
+const nextUid = () => `cmd-${++cmdUid}`;
+
+interface CmdRow extends CommandEntry {
+  uid: string;
+}
+
 export function ServiceEditor({ service, onClose }: Props) {
   const [tab, setTab] = useState<TabKey>('general');
   const [name, setName] = useState(service?.name ?? '');
   const [cwd, setCwd] = useState(service?.cwd ?? '');
-  const [cmds, setCmds] = useState<CommandEntry[]>(() => {
-    if (service?.cmds?.length) return service.cmds.map((c) => ({ ...c }));
-    return [{ name: 'default', cmd: '' }];
+  const [cmds, setCmds] = useState<CmdRow[]>(() => {
+    if (service?.cmds?.length) return service.cmds.map((c) => ({ ...c, uid: nextUid() }));
+    return [];
   });
   const [port, setPort] = useState<string>(service?.port?.toString() ?? '');
   const [tags, setTags] = useState<string[]>(service?.tags ?? []);
@@ -154,11 +178,10 @@ export function ServiceEditor({ service, onClose }: Props) {
 
   const addCmd = () => {
     const idx = cmds.length + 1;
-    setCmds([...cmds, { name: `cmd-${idx}`, cmd: '' }]);
+    setCmds([...cmds, { name: `cmd-${idx}`, cmd: '', uid: nextUid() }]);
   };
 
   const removeCmd = (i: number) => {
-    if (cmds.length <= 1) return;
     setCmds(cmds.filter((_, idx) => idx !== i));
   };
 
@@ -166,12 +189,35 @@ export function ServiceEditor({ service, onClose }: Props) {
     setCmds(cmds.map((c, idx) => (idx === i ? { ...c, ...patch } : c)));
   };
 
+  const moveCmd = (from: number, to: number) => {
+    setCmds((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved!);
+      return next;
+    });
+  };
+
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const from = cmds.findIndex((_, i) => String(i) === active.id);
+      const to = cmds.findIndex((_, i) => String(i) === over.id);
+      if (from >= 0 && to >= 0) moveCmd(from, to);
+    }
+  };
+
   const addSuggestionAsCmd = (suggestion: { label: string; cmd: string }) => {
     const existing = cmds.findIndex((c) => c.name === suggestion.label);
     if (existing >= 0) {
       updateCmd(existing, { cmd: suggestion.cmd });
     } else {
-      setCmds([...cmds, { name: suggestion.label, cmd: suggestion.cmd }]);
+      setCmds([...cmds, { name: suggestion.label, cmd: suggestion.cmd, uid: nextUid() }]);
     }
     if (tags.length === 0 && detected?.runtime === 'node') {
       const label = suggestion.label.toLowerCase();
@@ -328,33 +374,28 @@ export function ServiceEditor({ service, onClose }: Props) {
               className="md:col-span-2"
             >
               <div className="space-y-1.5">
-                {cmds.map((entry, i) => (
-                  <div key={i} className="flex items-center gap-1.5">
-                    <GripVertical className="text-fg-dim h-3 w-3 shrink-0" />
-                    <Input
-                      placeholder="name"
-                      value={entry.name}
-                      onChange={(e) => updateCmd(i, { name: e.target.value })}
-                      className="w-24 shrink-0"
-                    />
-                    <Input
-                      mono
-                      placeholder="pnpm dev"
-                      value={entry.cmd}
-                      onChange={(e) => updateCmd(i, { cmd: e.target.value })}
-                      className="flex-1"
-                    />
-                    {cmds.length > 1 && (
-                      <IconButton
-                        label="Remove"
-                        icon={<Trash2 />}
-                        tone="danger"
-                        size="xs"
-                        onClick={() => removeCmd(i)}
+                <DndContext
+                  sensors={dndSensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={cmds.map((_, i) => String(i))}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {cmds.map((entry, i) => (
+                      <SortableCmdRow
+                        key={i}
+                        id={String(i)}
+                        name={entry.name}
+                        cmd={entry.cmd}
+                        onNameChange={(v) => updateCmd(i, { name: v })}
+                        onCmdChange={(v) => updateCmd(i, { cmd: v })}
+                        onRemove={() => removeCmd(i)}
                       />
-                    )}
-                  </div>
-                ))}
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 <Button
                   variant="secondary"
                   size="sm"
@@ -373,15 +414,26 @@ export function ServiceEditor({ service, onClose }: Props) {
                 />
               </div>
             </Field>
-            <Field label="Port (optional)" hint="Shown in the port bar at the bottom.">
-              <Input
-                mono
-                placeholder="3000"
-                inputMode="numeric"
-                value={port}
-                onChange={(e) => setPort(e.target.value.replace(/[^\d]/g, ''))}
-              />
-            </Field>
+            <div className="grid grid-cols-[30%_70%] gap-3 md:col-span-2">
+              <Field label="Port" hint="Port bar.">
+                <Input
+                  mono
+                  placeholder="3000"
+                  inputMode="numeric"
+                  value={port}
+                  onChange={(e) => setPort(e.target.value.replace(/[^\d]/g, ''))}
+                />
+              </Field>
+              <Field label="Category" hint="Start typing or pick from the list.">
+                <TagInput
+                  tags={tags}
+                  draft={tagDraft}
+                  setDraft={setTagDraft}
+                  onAdd={addTag}
+                  onRemove={(t) => setTags(tags.filter((x) => x !== t))}
+                />
+              </Field>
+            </div>
             <div className="md:col-span-2">
               <Switch
                 checked={autoStart}
@@ -390,15 +442,6 @@ export function ServiceEditor({ service, onClose }: Props) {
                 description="Automatically start this service when RunHQ opens."
               />
             </div>
-            <Field label="Category" hint="Start typing or pick from the list.">
-              <TagInput
-                tags={tags}
-                draft={tagDraft}
-                setDraft={setTagDraft}
-                onAdd={addTag}
-                onRemove={(t) => setTags(tags.filter((x) => x !== t))}
-              />
-            </Field>
           </div>
         )}
 
@@ -453,5 +496,59 @@ export function ServiceEditor({ service, onClose }: Props) {
         )}
       </div>
     </Dialog>
+  );
+}
+
+function SortableCmdRow({
+  id,
+  name,
+  cmd,
+  onNameChange,
+  onCmdChange,
+  onRemove,
+}: {
+  id: string;
+  name: string;
+  cmd: string;
+  onNameChange: (v: string) => void;
+  onCmdChange: (v: string) => void;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+  const style: React.CSSProperties = isDragging
+    ? { transform: CSS.Transform.toString(transform), transition, zIndex: 10 }
+    : { transform: CSS.Transform.toString(transform), transition: '0ms' };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn('flex items-center gap-1.5', isDragging && 'opacity-70')}
+    >
+      <button
+        type="button"
+        className="text-fg-dim hover:text-fg-muted cursor-grab touch-none"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-3 w-3" />
+      </button>
+      <Input
+        placeholder="name"
+        value={name}
+        onChange={(e) => onNameChange(e.target.value)}
+        className="w-24 shrink-0"
+      />
+      <Input
+        mono
+        placeholder="pnpm dev"
+        value={cmd}
+        onChange={(e) => onCmdChange(e.target.value)}
+        className="flex-1"
+      />
+      <IconButton label="Remove" icon={<Trash2 />} tone="danger" size="xs" onClick={onRemove} />
+    </div>
   );
 }

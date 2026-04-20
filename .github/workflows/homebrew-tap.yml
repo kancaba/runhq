@@ -1,9 +1,18 @@
 name: Update Homebrew Tap
 
 on:
-  release:
-    types: [published]
-  # Allow manual re-run in case hashes drift
+  # Called from release.yml after DMGs are uploaded so we never race the
+  # Tauri build. See jobs.homebrew in release.yml for the happy path.
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Release tag to sync (e.g. v0.1.0).'
+        required: true
+        type: string
+    secrets:
+      HOMEBREW_TAP_TOKEN:
+        required: true
+  # Manual re-run in case hashes drift or a release is re-uploaded.
   workflow_dispatch:
     inputs:
       tag:
@@ -24,14 +33,14 @@ jobs:
       - name: Resolve tag
         id: tag
         env:
-          EVENT_TAG: ${{ github.event.release.tag_name }}
+          CALL_TAG: ${{ inputs.tag }}
           INPUT_TAG: ${{ github.event.inputs.tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -n "$INPUT_TAG" ]; then
+          if [ -n "$CALL_TAG" ]; then
+            TAG="$CALL_TAG"
+          elif [ -n "$INPUT_TAG" ]; then
             TAG="$INPUT_TAG"
-          elif [ -n "$EVENT_TAG" ]; then
-            TAG="$EVENT_TAG"
           else
             TAG=$(gh release view --repo erdembas/runhq --json tagName --jq .tagName)
           fi

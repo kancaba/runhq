@@ -1,1 +1,41 @@
+# GUI git clients (VSCode, Tower, Sourcetree, GitHub Desktop, Fork, …)
+# launch hooks without sourcing the user shell, so nvm / brew / volta
+# paths are missing and `pnpm`/`node` resolve to "command not found".
+# Prepend the common install locations so the hook works everywhere.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$HOME/Library/pnpm:$HOME/.volta/bin:$PATH"
+
+# If nvm is installed, load it so the currently-selected Node version
+# (and any Corepack-shimmed pnpm) becomes available in PATH.
+if [ -z "${NVM_DIR:-}" ] && [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+fi
+if [ -s "${NVM_DIR:-/dev/null}/nvm.sh" ]; then
+  # shellcheck disable=SC1091
+  . "$NVM_DIR/nvm.sh"
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "error: pnpm not found in PATH."
+  echo "  PATH=$PATH"
+  echo "  Install pnpm (https://pnpm.io/installation) or fix your shell"
+  echo "  environment, then try committing again."
+  exit 1
+fi
+
 pnpm exec lint-staged
+
+# Lint GitHub Actions workflows when any are staged. actionlint is the
+# de-facto linter for .github/workflows — it catches expression typos,
+# undefined contexts, and runs shellcheck on embedded scripts.
+STAGED_WORKFLOWS=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^\.github/workflows/.*\.ya?ml$' || true)
+
+if [ -n "$STAGED_WORKFLOWS" ]; then
+  if command -v actionlint >/dev/null 2>&1; then
+    echo "→ actionlint on staged workflows:"
+    echo "$STAGED_WORKFLOWS" | sed 's/^/  - /'
+    echo "$STAGED_WORKFLOWS" | xargs actionlint -color
+  else
+    echo "warning: actionlint is not installed — skipping workflow lint."
+    echo "  Install with: brew install actionlint   (or see https://github.com/rhysd/actionlint)"
+  fi
+fi

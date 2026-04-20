@@ -3,6 +3,7 @@ import { ChevronDown, Plus } from 'lucide-react';
 import { CATEGORIES } from '@/lib/categories';
 import { cn } from '@/lib/cn';
 import { TagChip } from '@/components/ui/TagChip';
+import { createPortal } from 'react-dom';
 
 /**
  * Combobox-style tag picker.
@@ -30,6 +31,7 @@ export function TagInput({
   const [highlight, setHighlight] = useState(0);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
   const q = draft.trim().toLowerCase();
   const available = useMemo(() => CATEGORIES.filter((c) => !tags.includes(c.key)), [tags]);
@@ -54,6 +56,20 @@ export function TagInput({
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const el = wrapRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDropdownStyle({
+      position: 'fixed',
+      bottom: window.innerHeight - rect.top + 4,
+      left: rect.left,
+      width: rect.width,
+      zIndex: 9999,
+    });
   }, [open]);
 
   useEffect(() => {
@@ -145,57 +161,61 @@ export function TagInput({
         </button>
       </div>
 
-      {open && totalOptions > 0 && (
-        <ul
-          id="tag-combobox-list"
-          role="listbox"
-          className="border-border bg-surface-raised rounded-app-sm animate-fade-in absolute z-20 mt-1 max-h-[240px] w-full overflow-y-auto border py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
-        >
-          {filtered.map((c, idx) => {
-            const active = highlight === idx;
-            return (
+      {open &&
+        totalOptions > 0 &&
+        createPortal(
+          <ul
+            id="tag-combobox-list"
+            role="listbox"
+            style={dropdownStyle}
+            className="border-border bg-surface-raised rounded-app-sm animate-fade-in max-h-[240px] overflow-y-auto border py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
+          >
+            {filtered.map((c, idx) => {
+              const active = highlight === idx;
+              return (
+                <li
+                  key={c.key}
+                  role="option"
+                  aria-selected={active}
+                  onMouseEnter={() => setHighlight(idx)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    pickAt(idx);
+                  }}
+                  className={cn(
+                    'flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-[11px] transition',
+                    active ? 'bg-surface-overlay text-fg' : 'text-fg-muted',
+                  )}
+                >
+                  <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', c.dot)} />
+                  <span className="font-medium">{c.label}</span>
+                  <span className="text-fg-dim truncate text-[10px]">{c.description}</span>
+                </li>
+              );
+            })}
+            {canCreate && (
               <li
-                key={c.key}
                 role="option"
-                aria-selected={active}
-                onMouseEnter={() => setHighlight(idx)}
+                aria-selected={highlight === filtered.length}
+                onMouseEnter={() => setHighlight(filtered.length)}
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  pickAt(idx);
+                  pickAt(filtered.length);
                 }}
                 className={cn(
-                  'flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-[11px] transition',
-                  active ? 'bg-surface-overlay text-fg' : 'text-fg-muted',
+                  'border-border/60 flex cursor-pointer items-center gap-2 border-t px-2.5 py-1.5 text-[11px] transition',
+                  highlight === filtered.length ? 'bg-surface-overlay text-fg' : 'text-fg-muted',
                 )}
               >
-                <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', c.dot)} />
-                <span className="font-medium">{c.label}</span>
-                <span className="text-fg-dim truncate text-[10px]">{c.description}</span>
+                <Plus className="text-accent h-3 w-3 shrink-0" />
+                <span>
+                  Create <span className="text-fg font-medium">&ldquo;{q}&rdquo;</span>
+                </span>
               </li>
-            );
-          })}
-          {canCreate && (
-            <li
-              role="option"
-              aria-selected={highlight === filtered.length}
-              onMouseEnter={() => setHighlight(filtered.length)}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                pickAt(filtered.length);
-              }}
-              className={cn(
-                'border-border/60 flex cursor-pointer items-center gap-2 border-t px-2.5 py-1.5 text-[11px] transition',
-                highlight === filtered.length ? 'bg-surface-overlay text-fg' : 'text-fg-muted',
-              )}
-            >
-              <Plus className="text-accent h-3 w-3 shrink-0" />
-              <span>
-                Create <span className="text-fg font-medium">&ldquo;{q}&rdquo;</span>
-              </span>
-            </li>
-          )}
-        </ul>
-      )}
+            )}
+          </ul>,
+          document.body,
+        )}
     </div>
   );
 }

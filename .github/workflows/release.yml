@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   release:
+    name: Release (${{ matrix.platform }}${{ matrix.args && format(' {0}', matrix.args) || '' }})
     permissions:
       contents: write
     strategy:
@@ -26,7 +27,6 @@ jobs:
             args: ''
 
     runs-on: ${{ matrix.platform }}
-    name: Release (${{ matrix.platform }}${{ matrix.args && format(' {0}', matrix.args) || '' }})
 
     steps:
       - uses: actions/checkout@v4
@@ -80,3 +80,15 @@ jobs:
           prerelease: false
           args: ${{ matrix.args }}
 
+  # Sync the Homebrew Cask only after every matrix job has uploaded its
+  # DMGs. Running this as a `release: published` trigger races the Tauri
+  # build and 404s on the download URLs (see docs/RELEASING.md).
+  homebrew:
+    name: Update Homebrew Cask
+    needs: release
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: ./.github/workflows/homebrew-tap.yml
+    with:
+      tag: ${{ github.ref_name }}
+    secrets:
+      HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
