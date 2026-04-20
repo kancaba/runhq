@@ -383,6 +383,54 @@ pre,
     0 0 80px -20px rgb(var(--accent) / 0.18);
 }
 
+/* The palette's main search input is *always* focused while the window is
+ * open, so the global `*:focus-visible` accent ring is pure noise here.
+ * This rule lives outside any `@layer`, matching the global focus-visible
+ * rule's cascade tier, and wins on specificity (class + pseudo > `*` +
+ * pseudo). Both `focus` and `focus-visible` are cleared so browsers that
+ * keep the outline on click-focus also stay quiet. */
+.qa-search-input,
+.qa-search-input:focus,
+.qa-search-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* -----------------------------------------------------------------------
+ * Quick Action — critical layout anchors (Tailwind-agnostic).
+ *
+ * Tailwind v4's Oxide scanner occasionally drops `first:*` variant classes
+ * and `py-1.5` after hot reload or after a new class string is added to
+ * the codebase. When that happens the palette's first row gets clipped by
+ * the filter bar border and the "Actions" section header disappears.
+ *
+ * Anchoring these two responsibilities in plain CSS keeps the palette
+ * correct regardless of whether Tailwind successfully generated the
+ * corresponding utilities on the last rebuild. Tailwind classes on the
+ * same elements are still used for typography, hover states, etc. — we
+ * only lock down the structural bits here.
+ * --------------------------------------------------------------------- */
+.qa-list {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.qa-section-header {
+  padding: 12px 16px 4px;
+  border-top: 1px solid rgb(var(--border) / 0.35);
+  color: rgb(var(--fg-dim));
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.qa-section-header:first-child {
+  padding-top: 4px;
+  border-top: 0;
+}
+
 .btn-primary {
   background: linear-gradient(180deg, rgb(var(--accent)) 0%, rgb(var(--accent-hover)) 100%);
   color: rgb(var(--accent-fg));

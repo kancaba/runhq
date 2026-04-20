@@ -470,6 +470,79 @@ main {
   letter-spacing: -0.005em;
 }
 
+/* Built-with credit (Huawei Cloud MaaS + GLM). Sits below the chip row,
+   styled as a pill so it visually continues the strip but reads as a
+   single clickable badge rather than a filter chip. Accent hairline + sparkle
+   icon flag it as a promo without stealing attention from the CTAs above. */
+.hero-maas {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 6px 12px 6px 11px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-dim);
+  background: rgba(251, 146, 60, 0.04);
+  border: 1px solid rgba(251, 146, 60, 0.18);
+  border-radius: 999px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+.hero-maas strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.hero-maas-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.hero-maas-sep {
+  color: var(--text-dim);
+  opacity: 0.45;
+}
+.hero-maas-more {
+  color: var(--accent);
+  font-weight: 600;
+}
+.hero-maas-arrow {
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.hero-maas:hover,
+.hero-maas:focus-visible {
+  border-color: rgba(251, 146, 60, 0.4);
+  background: rgba(251, 146, 60, 0.08);
+  color: var(--text);
+  outline: none;
+}
+.hero-maas:hover .hero-maas-arrow,
+.hero-maas:focus-visible .hero-maas-arrow {
+  transform: translateX(3px);
+}
+
+/* Sub-620px viewports: drop the separator + "Learn more" copy to keep the
+   badge on a single line. The aria-label still exposes full context to
+   assistive tech, and the trailing arrow preserves the click affordance. */
+@media (max-width: 620px) {
+  .hero-maas {
+    font-size: 10.5px;
+    padding: 5px 10px 5px 9px;
+    gap: 6px;
+  }
+  .hero-maas-sep,
+  .hero-maas-more {
+    display: none;
+  }
+}
+
 /* Hero window (big app preview) */
 .hero-window-shell {
   margin-top: 56px;

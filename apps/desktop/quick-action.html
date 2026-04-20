@@ -28,13 +28,14 @@
       })();
     </script>
     <style>
-      *,
-      *::before,
-      *::after {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+      /* NOTE: Do NOT add a universal `* { padding/margin: 0 }` reset here.
+       * Tailwind v4 emits utilities inside `@layer utilities`, and any
+       * unlayered CSS beats layered CSS regardless of specificity — so a
+       * `*` reset in this file silently kills every `px-*`, `py-*`, `m-*`
+       * etc. on this window. Tailwind's preflight already normalizes
+       * margin/padding/box-sizing inside a layer where utilities can
+       * override it.
+       */
       html,
       body {
         background: transparent;

@@ -297,19 +297,19 @@ export function QuickActionBar() {
         className="quick-action-panel animate-fade-in pointer-events-auto flex w-[620px] flex-col overflow-hidden"
         style={{ maxHeight: '520px' }}
       >
-        <div className="flex items-center gap-2.5 px-4 py-3">
+        <div className="flex items-center gap-3 px-4 py-3.5">
           {inDrill ? (
             <button
               type="button"
               onClick={() => setExpandedId(null)}
-              className="text-fg-dim hover:text-fg flex h-6 w-6 shrink-0 items-center justify-center rounded transition"
+              className="text-fg-dim hover:text-fg hover:bg-surface-muted/60 flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition"
               title="Back"
               aria-label="Back"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
           ) : (
-            <Zap className="text-accent h-4 w-4 shrink-0" />
+            <Zap className="text-accent h-[18px] w-[18px] shrink-0" strokeWidth={2.25} />
           )}
           <input
             ref={inputRef}
@@ -317,15 +317,11 @@ export function QuickActionBar() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={inDrill ? `Filter ${drillName}…` : 'Search services, commands, actions…'}
-            className="text-fg placeholder:text-fg-dim h-6 w-full bg-transparent text-[13px] focus:outline-none"
+            className="qa-search-input text-fg placeholder:text-fg-dim/80 h-7 w-full bg-transparent text-[15px] font-normal tracking-[-0.01em]"
             spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
           />
-          <div className="flex shrink-0 items-center gap-1">
-            <kbd className="border-border bg-surface-muted text-fg-dim rounded border px-1.5 py-0.5 font-mono text-[10px]">
-              {inDrill ? '←' : '↹'}
-            </kbd>
-            <span className="text-fg-dim text-[10px]">{inDrill ? 'back' : 'filter'}</span>
-          </div>
         </div>
 
         {!inDrill && (
@@ -351,7 +347,7 @@ export function QuickActionBar() {
           </div>
         )}
 
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto py-1.5">
+        <div ref={scrollRef} className="qa-list min-h-0 flex-1 overflow-y-auto">
           {items.length === 0 && (
             <div className="text-fg-dim py-12 text-center text-[12px]">
               {inDrill
@@ -360,6 +356,9 @@ export function QuickActionBar() {
                   ? 'No services configured'
                   : 'No results'}
             </div>
+          )}
+          {!inDrill && items[0]?.type === 'app-action' && (
+            <div className="qa-section-header">Actions</div>
           )}
           {items.map((item, i) => renderRow(item, i, renderRowDeps))}
         </div>

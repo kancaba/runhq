@@ -21,10 +21,7 @@ export function renderRow(item: ListItem, i: number, deps: RenderRowDeps): React
 
   if (item.type === 'header') {
     return (
-      <div
-        key={`hdr-${item.label}-${i}`}
-        className="text-fg-dim border-border/20 border-t px-4 pt-3 pb-1 text-[9px] font-semibold tracking-wider uppercase first:border-t-0 first:pt-1"
-      >
+      <div key={`hdr-${item.label}-${i}`} className="qa-section-header">
         {item.label}
       </div>
     );
@@ -32,10 +29,7 @@ export function renderRow(item: ListItem, i: number, deps: RenderRowDeps): React
 
   if (item.type === 'cmd-header') {
     return (
-      <div
-        key={`cmdhdr-${i}`}
-        className="text-fg-dim border-border/20 border-t px-4 pt-2 pb-1 text-[9px] font-semibold tracking-wider uppercase"
-      >
+      <div key={`cmdhdr-${i}`} className="qa-section-header">
         Commands
       </div>
     );
