@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
-import { check } from '@tauri-apps/plugin-updater';
-import { relaunch } from '@tauri-apps/plugin-process';
 import { listen } from '@tauri-apps/api/event';
+import { UpdateBanner } from '@/components/UpdateBanner';
 import { SidebarRail } from '@/components/SidebarRail';
 import { LogPanel } from '@/components/LogPanel';
 import { PortManager } from '@/components/PortManager';
@@ -39,7 +38,6 @@ export default function App() {
   const [scanPath, setScanPath] = useState<string | null>(null);
   const [portManagerOpen, setPortManagerOpen] = useState(false);
   const [shortcutSettingsOpen, setShortcutSettingsOpen] = useState(false);
-  const [updateAvailable, setUpdateAvailable] = useState<string | null>(null);
   // When the quick-action palette opens over the top of the running app, we
   // dim the main window so the floating palette reads as a modal layer rather
   // than something floating in mid-air. Rust only emits `palette-opened`
@@ -55,10 +53,13 @@ export default function App() {
     reopened: false,
   }));
 
-  const startScan = async () => {
+  // Wrapped in useCallback so the quick-action event listener effect below
+  // doesn't tear down and re-register every render — `setScanPath` is stable,
+  // so this callback identity is effectively permanent.
+  const startScan = useCallback(async () => {
     const picked = await open({ directory: true, multiple: false });
     if (typeof picked === 'string') setScanPath(picked);
-  };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,20 +116,6 @@ export default function App() {
       clearInterval(id);
     };
   }, [setPorts]);
-
-  useEffect(() => {
-    const checkForUpdate = async () => {
-      try {
-        const update = await check();
-        if (update?.available) {
-          setUpdateAvailable(update.version);
-        }
-      } catch (err) {
-        console.error('update check failed', err);
-      }
-    };
-    void checkForUpdate();
-  }, []);
 
   useEffect(() => {
     const unsubs: Array<() => void> = [];
@@ -217,17 +204,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const installUpdate = async () => {
-    try {
-      const update = await check();
-      if (!update?.available) return;
-      await update.downloadAndInstall();
-      await relaunch();
-    } catch (err) {
-      console.error('update install failed', err);
-    }
-  };
-
   return (
     <div className="bg-surface text-fg relative flex h-screen flex-col overflow-hidden">
       <TitleBar />
@@ -244,20 +220,7 @@ export default function App() {
         </main>
       </div>
 
-      {updateAvailable && (
-        <div className="bg-accent/10 border-accent/25 text-fg flex items-center justify-between border-t px-4 py-2 text-[12px]">
-          <span>
-            <span className="text-accent font-semibold">RunHQ {updateAvailable}</span> available
-          </span>
-          <button
-            type="button"
-            onClick={installUpdate}
-            className="btn-primary rounded-app-sm px-3 py-1 text-[11px] font-medium"
-          >
-            Update &amp; Restart
-          </button>
-        </div>
-      )}
+      <UpdateBanner />
 
       <StatusBar
         onOpenPortManager={() => setPortManagerOpen(true)}
