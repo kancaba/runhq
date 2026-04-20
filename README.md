@@ -26,7 +26,10 @@
 
 Terminal tabs are a mess. Containers are heavy. You open a terminal for the web app, another for the API, a third for the worker, a fourth for the database container, then you `lsof -i :3000` because something is still holding the port. RunHQ replaces that ritual with a single always-open control panel — without forcing your code into Docker.
 
+Every project also has its own ritual: `pnpm dev` here, `go run ./cmd/api` there, `uv run train.py` somewhere else, plus migrations, seeds, Makefile targets, custom shell scripts. RunHQ turns all of that into a project cockpit — register each command once, then run it, open the project in your editor, or drop into an embedded terminal with one click or one keystroke. No more digging through a dozen READMEs to remember how to boot a repo.
+
 - **Native, not containerized.** Your project runs exactly the way you already run it.
+- **Every project, every command, one window.** Custom commands per service, open-in-editor across 8 editors, embedded PTY terminal, Cmd+K palette, Cmd+Shift+K global hotkey.
 - **Local, private, offline.** No telemetry, no cloud sync, no account.
 - **One window to rule them.** Start / stop / restart, kill ports, search logs, in one place.
 

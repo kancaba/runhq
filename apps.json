@@ -1,0 +1,55 @@
+{
+  "$schema": "https://wvw.dev/apps.schema.json",
+  "store": {
+    "name": "Erdem Baş",
+    "developer": "Erdem Baş",
+    "tagline": "Native-first local dev tools.",
+    "github": "https://github.com/erdembas"
+  },
+  "categories": [
+    { "id": "developer-tools", "name": "Developer Tools" },
+    { "id": "macos", "name": "macOS Apps" }
+  ],
+  "apps": [
+    {
+      "id": "runhq",
+      "name": "RunHQ",
+      "subtitle": "Run every project's commands from one window",
+      "description": "Every project has its own ritual — pnpm dev here, go run ./cmd/api there, docker compose up somewhere else. RunHQ gives you one window to run all of them, open each in your favorite editor, and drop into a terminal — without memorizing what does what.",
+      "longDescription": "RunHQ is a project cockpit for polyglot local development. Instead of juggling terminal tabs and hunting through READMEs to remember how to boot each repo, you register your projects once and every custom command becomes one click or one keystroke away.\n\nWork with dozens of projects and hundreds of services side by side. RunHQ auto-discovers them across 10 runtimes (Node / Bun / Deno, .NET, Java with Maven & Gradle, Go, Rust, Python, Ruby, PHP, Docker) by reading package.json, go.mod, Cargo.toml, pyproject.toml, .csproj, pom.xml, build.gradle, Gemfile, composer.json, compose.yaml — and never writes back to your repos.\n\nEach service carries its own cwd, env, and startup command, so you can mix `pnpm dev`, `go run ./cmd/api`, `uv run train.py`, migration scripts, seed scripts, Makefile targets, or any custom shell command into a single playable stack. Press Cmd+K to fuzzy-jump between stacks, services, and commands. Press Cmd+Shift+K from anywhere on your system — your editor, browser, Slack — to pop the Quick Action window and start/stop services without breaking flow.\n\nOpen any project in VS Code, Cursor, Windsurf, Zed, Sublime, WebStorm, IDEA, or Neovim with one click. Drop into an embedded xterm.js terminal (full PTY, Nerd Font aware) when you need to poke around manually. Watch a unified, ANSI-colored, filterable log stream with 10k-line ring buffers and virtualized rendering. Kill a stuck port from the real-time watchdog in one click.\n\nBuilt on a headless Rust core (runhq-core) with a React + Tauri shell. Single binary, <100 MB idle RAM, no Electron, no Node runtime at runtime. 100% local, private, offline — no telemetry, no cloud sync, no account. Config is atomic human-readable JSON at ~/.runhq/config.json, so your project setup is diffable and portable.",
+      "icon": "https://raw.githubusercontent.com/erdembas/runhq/main/docs/icon.png",
+      "iconEmoji": "🛰️",
+      "iconStyle": {
+        "scale": 1.3,
+        "objectFit": "cover",
+        "borderRadius": "22%"
+      },
+      "category": ["developer-tools", "macos"],
+      "platform": "macOS",
+      "price": "Free",
+      "github": "https://github.com/erdembas/runhq",
+      "homepage": "https://runhq.dev",
+      "language": "Rust",
+      "brew": "brew install --cask erdembas/tap/runhq",
+      "downloadUrl": "https://github.com/erdembas/runhq/releases/latest",
+      "requirements": "macOS 12+, Linux (deb / AppImage), or Windows 10+ (WebView2)",
+      "features": [
+        "Register any custom command per service — pnpm dev, go run, uv run, docker compose up, migration scripts, Makefile targets, anything",
+        "Open any project in your editor with one click — VS Code, Cursor, Windsurf, Zed, Sublime, WebStorm, IDEA, Neovim",
+        "Drop into an embedded PTY terminal (xterm.js, Nerd Font aware) for any project without leaving the window",
+        "Cmd+K command palette — fuzzy jump between stacks, services, and commands, keyboard-first",
+        "Cmd+Shift+K global Quick Action window — start/stop services from your editor, browser, or anywhere on your system",
+        "Per-project cwd, env, and grace period — projects stay isolated and reproducible",
+        "Auto-discovers projects across 10 runtimes (Node / Bun / Deno, .NET, Java, Go, Rust, Python, Ruby, PHP, Docker) — never writes back to your repos",
+        "Favorites, recent projects, category & runtime filters, global search — find anything in <1s",
+        "Unified log stream with 10k-line ring buffers, ANSI colors, live filter, follow tail, and copy line",
+        "Real-time port watchdog — list all TCP listeners, search, one-click Kill port, zombie kill",
+        "Process supervisor with graceful shutdown (SIGTERM → grace → SIGKILL) and zero orphans",
+        "Atomic JSON config at ~/.runhq/config.json — diffable, portable, human-readable",
+        "Single Rust binary, <100 MB idle RAM, no Electron, no Node runtime",
+        "100% local and offline — no telemetry, no cloud sync, no account"
+      ],
+      "screenshots": ["https://raw.githubusercontent.com/erdembas/runhq/main/docs/dashboard.png"]
+    }
+  ]
+}
