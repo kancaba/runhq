@@ -5,9 +5,9 @@
  * discover on their own by looking at the UI:
  *
  *   1. That RunHQ exists as a proper app (brand moment / reassurance).
- *   2. The global shortcut (Cmd+Shift+K) and the in-app shortcut (Cmd+K),
- *      because the Quick Action window is the single biggest force multiplier
- *      and is otherwise invisible.
+ *   2. The global shortcut (⌘/Ctrl + Shift + K) and the in-app shortcut
+ *      (⌘/Ctrl + K), because the Quick Action window is the single biggest
+ *      force multiplier and is otherwise invisible.
  *   3. That closing the window hides to the menu bar rather than quits — this
  *      is a behaviour that routinely traps new users of tray-resident apps.
  *
@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Keyboard, Rocket, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { markTourSeen } from '@/lib/onboarding';
+import { MOD_LABEL, MOD_SYMBOL } from '@/lib/platform';
 import { Kbd } from '@/components/ui/Kbd';
 
 interface Props {
@@ -26,9 +27,7 @@ interface Props {
   reopened?: boolean;
 }
 
-const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
-const MOD = isMac ? '⌘' : 'Ctrl';
-const MOD_LABEL = isMac ? 'Cmd' : 'Ctrl';
+const MOD = MOD_SYMBOL;
 
 interface Slide {
   id: string;

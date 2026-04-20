@@ -16,6 +16,7 @@ import { ipc } from '@/lib/ipc';
 import { broadcastTheme, THEME_STORAGE_KEY, type Theme } from '@/lib/theme';
 import { localUrl } from '@/lib/url';
 import { categoryForTags } from '@/lib/categories';
+import { modChord } from '@/lib/platform';
 import { isRunning, type FilterMode, type ListItem, type ServiceCmd } from './types';
 import type { ServiceDef, ServiceId, StackDef } from '@/types';
 
@@ -222,7 +223,7 @@ export function buildItems(deps: BuildItemsDeps): ListItem[] {
       id: 'open-app',
       label: 'Open RunHQ',
       subtitle: 'Show the main application window',
-      shortcut: '⌘1',
+      shortcut: modChord('1'),
       icon: <LayoutDashboard className="h-4 w-4" />,
       run: async () => {
         await focusMainWindow();
@@ -234,7 +235,7 @@ export function buildItems(deps: BuildItemsDeps): ListItem[] {
       id: 'scan',
       label: 'Scan for Projects',
       subtitle: 'Find and add services from a directory',
-      shortcut: '⌘2',
+      shortcut: modChord('2'),
       icon: <Search className="h-4 w-4" />,
       run: async () => {
         await focusMainWindow();
@@ -247,7 +248,7 @@ export function buildItems(deps: BuildItemsDeps): ListItem[] {
       id: 'toggle-theme',
       label: 'Toggle Theme',
       subtitle: 'Switch between light and dark mode',
-      shortcut: '⌘3',
+      shortcut: modChord('3'),
       icon: <Sun className="h-4 w-4" />,
       run: async () => {
         const saved = (() => {
@@ -273,7 +274,7 @@ export function buildItems(deps: BuildItemsDeps): ListItem[] {
       id: 'shortcuts',
       label: 'Keyboard Shortcuts',
       subtitle: 'Configure global shortcuts',
-      shortcut: '⌘4',
+      shortcut: modChord('4'),
       icon: <Settings className="h-4 w-4" />,
       run: async () => {
         await focusMainWindow();

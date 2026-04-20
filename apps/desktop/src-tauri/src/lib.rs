@@ -247,6 +247,18 @@ fn show_quick_action(app: tauri::AppHandle) {
     toggle_quick_action(&app);
 }
 
+/// Unconditionally hide the Quick Action palette and notify the main window.
+/// Unlike [`show_quick_action`] (which toggles), this never re-shows the
+/// window — safe to call from a backdrop click where a concurrent
+/// `Focused(false)` may have already hidden the palette.
+#[tauri::command]
+fn hide_quick_action(app: tauri::AppHandle) {
+    if let Some(w) = app.get_webview_window("quick-action") {
+        let _ = w.hide();
+    }
+    emit_palette_closed(&app);
+}
+
 /// Bring the main RunHQ window to the foreground from any entry point —
 /// Quick Action sub-actions, tray, global shortcuts. Needed because:
 ///   • Cmd+H on macOS hides the NSApp, and a plain `window.show()` won't
@@ -471,7 +483,22 @@ pub fn run() {
             });
 
             // ---- Global Shortcut ----
-            let shortcut_str = store.snapshot().prefs.shortcuts.quick_action.clone();
+            //
+            // Before v0.2.1 the stored default was a literal `Cmd+Shift+K`.
+            // Tauri's global-shortcut parser maps bare `Cmd` to SUPER, which
+            // is fine on macOS (⌘) but binds the Windows/Super key on
+            // Linux/Windows — almost never what the user wants, and on
+            // Windows 10+ the OS grabs `Win+Shift+K` for itself. We rewrite
+            // any legacy bare `Cmd+…` prefix to `CmdOrCtrl+…` so the parser
+            // resolves it to the platform-native modifier (Cmd on macOS,
+            // Ctrl elsewhere) without forcing a migration write on the
+            // user's config file.
+            let raw_shortcut = store.snapshot().prefs.shortcuts.quick_action.clone();
+            let shortcut_str = if raw_shortcut.starts_with("Cmd+") {
+                format!("CmdOrCtrl+{}", &raw_shortcut["Cmd+".len()..])
+            } else {
+                raw_shortcut
+            };
             let global_shortcut = app.global_shortcut();
 
             if let Ok(shortcut) = shortcut_str.parse::<tauri_plugin_global_shortcut::Shortcut>() {
@@ -544,6 +571,7 @@ pub fn run() {
             terminal::terminal_resize,
             terminal::terminal_destroy,
             show_quick_action,
+            hide_quick_action,
             focus_main_window,
             show_tray_hint,
         ])

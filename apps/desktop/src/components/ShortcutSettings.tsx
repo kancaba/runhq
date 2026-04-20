@@ -7,8 +7,11 @@ import { ipc } from '@/lib/ipc';
 import { cn } from '@/lib/cn';
 import type { Prefs, Shortcuts } from '@/types';
 
+// Stored in the platform-agnostic `CmdOrCtrl` form that Tauri's
+// global-shortcut parser resolves to Command on macOS and Control on
+// Windows/Linux. The UI then displays the platform-appropriate label.
 const DEFAULT_SHORTCUTS: Shortcuts = {
-  quick_action: 'Cmd+Shift+K',
+  quick_action: 'CmdOrCtrl+Shift+K',
 };
 
 const SHORTCUT_LABELS: Record<keyof Shortcuts, string> = {
@@ -20,19 +23,31 @@ const SHORTCUT_DESCRIPTIONS: Record<keyof Shortcuts, string> = {
     'Open the Spotlight-like search bar from anywhere. The app window will be brought to front if hidden.',
 };
 
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+// The primary "command" modifier as the user expects to see it on their OS —
+// Cmd on Mac, Ctrl everywhere else. Windows/Linux users don't want to see
+// "Cmd" anywhere in the UI; this is the pragmatic cross-platform convention
+// VS Code, Slack, Linear, etc. all follow.
+const PRIMARY_MOD_LABEL = IS_MAC ? 'Cmd' : 'Ctrl';
+
 function normalizeShortcut(raw: string): string {
+  // Any token that a Tauri shortcut string may use for the platform's
+  // primary modifier is collapsed to the single platform-appropriate label
+  // before rendering. `Control` alone always stays as `Ctrl` because a
+  // power user may bind literal Control on macOS on purpose.
   return raw
-    .replace(/CommandOrControl/g, 'Cmd')
-    .replace(/Command/g, 'Cmd')
-    .replace(/Control/g, 'Ctrl')
-    .replace(/Super/g, 'Cmd')
-    .replace(/Meta/g, 'Cmd');
+    .replace(/CommandOrControl/g, PRIMARY_MOD_LABEL)
+    .replace(/CmdOrCtrl/g, PRIMARY_MOD_LABEL)
+    .replace(/Command/g, PRIMARY_MOD_LABEL)
+    .replace(/\bCmd\b/g, PRIMARY_MOD_LABEL)
+    .replace(/\bSuper\b/g, PRIMARY_MOD_LABEL)
+    .replace(/\bMeta\b/g, PRIMARY_MOD_LABEL)
+    .replace(/\bControl\b/g, 'Ctrl');
 }
 
 function parseKeyboardEvent(e: KeyboardEvent): string {
   const parts: string[] = [];
-  if (e.metaKey || e.ctrlKey)
-    parts.push(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Cmd' : 'Ctrl');
+  if (e.metaKey || e.ctrlKey) parts.push(PRIMARY_MOD_LABEL);
   if (e.altKey) parts.push('Alt');
   if (e.shiftKey) parts.push('Shift');
   const key = e.key;

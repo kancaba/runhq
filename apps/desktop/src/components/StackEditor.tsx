@@ -112,7 +112,7 @@ export function StackEditor({ stack, onClose }: Props) {
             placeholder="e.g. Full-Stack App"
             autoFocus
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.metaKey && isValid) handleSave();
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && isValid) handleSave();
             }}
           />
         </Field>

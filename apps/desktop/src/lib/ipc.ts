@@ -91,6 +91,7 @@ export const ipc = {
 
   showTrayHint: () => invoke<void>('show_tray_hint'),
   showQuickAction: () => invoke<void>('show_quick_action'),
+  hideQuickAction: () => invoke<void>('hide_quick_action'),
   focusMainWindow: () => invoke<void>('focus_main_window'),
 };
 

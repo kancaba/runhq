@@ -25,6 +25,12 @@ export function QuickActionBar() {
 
   useEffect(() => {
     inputRef.current?.focus();
+    const unlisten = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+      if (focused) inputRef.current?.focus();
+    });
+    return () => {
+      unlisten.then((u) => u());
+    };
   }, []);
 
   useEffect(() => {
@@ -185,7 +191,11 @@ export function QuickActionBar() {
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.metaKey && ['1', '2', '3', '4'].includes(e.key)) {
+    // Accept either Cmd (macOS) or Ctrl (Windows/Linux) as the modifier so
+    // the `⌘1…⌘4` / `Ctrl+1…Ctrl+4` affordance shown in the list actually
+    // triggers on every platform — previously this was macOS-only and the
+    // labels were misleading on Windows/Linux.
+    if ((e.metaKey || e.ctrlKey) && ['1', '2', '3', '4'].includes(e.key)) {
       e.preventDefault();
       const action = items.find(
         (it): it is Extract<typeof it, { type: 'app-action' }> =>
@@ -292,10 +302,14 @@ export function QuickActionBar() {
   const inDrill = Boolean(drillName);
 
   return (
-    <div className="pointer-events-none flex h-screen w-screen items-center justify-center pb-[8vh]">
+    <div
+      className="pointer-events-auto flex h-screen w-screen items-center justify-center pb-[8vh]"
+      onClick={hide}
+    >
       <div
         className="quick-action-panel animate-fade-in pointer-events-auto flex w-[620px] flex-col overflow-hidden"
         style={{ maxHeight: 'min(520px, 78vh)' }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3.5">
           {inDrill ? (

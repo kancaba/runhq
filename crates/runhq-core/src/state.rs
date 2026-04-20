@@ -93,7 +93,13 @@ impl Default for Shortcuts {
 }
 
 fn default_quick_action() -> String {
-    "Cmd+Shift+K".into()
+    // `CmdOrCtrl` is a Tauri-native alias that the global-shortcut parser
+    // resolves to Command on macOS and Control on Windows/Linux. Using the
+    // aliased form here (instead of a literal `Cmd`) is what makes the
+    // shortcut bind to Ctrl+Shift+K on non-macOS — without it, `Cmd` parses
+    // as the Super/Windows key, which is both wrong and conflicts with
+    // OS-level bindings on Windows 10+.
+    "CmdOrCtrl+Shift+K".into()
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

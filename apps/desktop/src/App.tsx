@@ -183,10 +183,10 @@ export default function App() {
     };
   }, []);
 
-  // In-app Cmd/Ctrl+K → same floating Quick Action window as the OS-wide
+  // In-app ⌘/Ctrl + K → same floating Quick Action window as the OS-wide
   // shortcut and the titlebar trigger. We prefer the plain chord (no Shift)
   // inside the app because users' hands are already on the main window;
-  // Cmd+Shift+K remains the OS-wide summon from other apps.
+  // ⌘/Ctrl + Shift + K remains the OS-wide summon from other apps.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {
@@ -253,7 +253,8 @@ export default function App() {
       {paletteOpen && (
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] transition-opacity duration-150"
+          className="pointer-events-auto fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] transition-opacity duration-150"
+          onClick={() => void ipc.hideQuickAction().catch(() => {})}
         />
       )}
     </div>

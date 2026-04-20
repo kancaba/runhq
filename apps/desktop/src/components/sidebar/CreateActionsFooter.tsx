@@ -1,5 +1,6 @@
 import { Layers, Plus } from 'lucide-react';
 import { AddSectionButton } from '../SectionMenus';
+import { modChord } from '@/lib/platform';
 
 export function CreateActionsFooter({
   onAddService,
@@ -13,7 +14,12 @@ export function CreateActionsFooter({
   return (
     <div className="border-border/60 bg-surface-raised/95 border-t px-2 py-2 backdrop-blur">
       <div className="flex items-center gap-1.5">
-        <button type="button" onClick={onAddService} title="New service (⌘N)" className={cta}>
+        <button
+          type="button"
+          onClick={onAddService}
+          title={`New service (${modChord('N')})`}
+          className={cta}
+        >
           <Plus className="h-3 w-3 shrink-0" />
           <span className="truncate">Service</span>
         </button>

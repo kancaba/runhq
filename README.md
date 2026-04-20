@@ -44,8 +44,8 @@ Terminal tabs are a mess. Containers are heavy. You open a terminal for the web 
 
 - **Dashboard** with system health bar, service cards, and category grouping (frontend / backend / database / infra / worker / tooling).
 - **Embedded terminal** — full PTY via xterm.js with Nerd Font support and theme-aware rendering.
-- **Quick Action floating window** — press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> to start/stop services without leaving your editor.
-- **Command palette** (<kbd>Cmd</kbd>+<kbd>K</kbd>) with fuzzy search, drill-down into service commands, and favorites.
+- **Quick Action floating window** — press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd> on Windows / Linux) to start/stop services without leaving your editor.
+- **Command palette** (<kbd>Cmd</kbd>+<kbd>K</kbd> / <kbd>Ctrl</kbd>+<kbd>K</kbd>) with fuzzy search, drill-down into service commands, and favorites.
 - **Editor integration** — detect and open projects in VS Code, Cursor, Windsurf, Zed, Sublime, WebStorm, IDEA, Neovim.
 - **Category & runtime filters** — narrow the service list by category or runtime at a glance.
 - **Auto-update** — in-app update banner with one-click "Update & Restart".

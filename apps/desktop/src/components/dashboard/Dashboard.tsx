@@ -21,6 +21,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { ipc } from '@/lib/ipc';
 import { cn } from '@/lib/cn';
 import { categoryForTags, type Category } from '@/lib/categories';
+import { modChord } from '@/lib/platform';
 import type { ServiceDef, Status } from '@/types';
 import { ServiceCard } from './ServiceCard';
 import { StatTile } from './StatTile';
@@ -124,7 +125,9 @@ export function Dashboard({ onScan }: Props) {
               onClick={() => openEditor(null)}
             >
               Add service{' '}
-              <Kbd className="ml-1.5 border-transparent bg-white/20 text-white/90">⌘N</Kbd>
+              <Kbd className="ml-1.5 border-transparent bg-white/20 text-white/90">
+                {modChord('N')}
+              </Kbd>
             </Button>
           </div>
         </div>
@@ -388,7 +391,7 @@ export function Dashboard({ onScan }: Props) {
         <footer className="text-fg-dim mt-auto flex items-center justify-between pt-4 text-[11px]">
           <span>Everything runs locally. No telemetry.</span>
           <span className="flex items-center gap-1.5 opacity-70">
-            <Kbd>⌘K</Kbd>
+            <Kbd>{modChord('K')}</Kbd>
             <span>quick jump</span>
           </span>
         </footer>
