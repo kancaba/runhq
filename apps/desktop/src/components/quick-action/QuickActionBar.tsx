@@ -292,10 +292,10 @@ export function QuickActionBar() {
   const inDrill = Boolean(drillName);
 
   return (
-    <div className="pointer-events-none flex h-screen w-screen items-start justify-center pt-[18vh]">
+    <div className="pointer-events-none flex h-screen w-screen items-center justify-center pb-[8vh]">
       <div
         className="quick-action-panel animate-fade-in pointer-events-auto flex w-[620px] flex-col overflow-hidden"
-        style={{ maxHeight: '520px' }}
+        style={{ maxHeight: 'min(520px, 78vh)' }}
       >
         <div className="flex items-center gap-3 px-4 py-3.5">
           {inDrill ? (

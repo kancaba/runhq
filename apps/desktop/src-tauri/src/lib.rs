@@ -82,6 +82,58 @@ struct QuickActionGuard {
     last_shown: Mutex<Option<Instant>>,
 }
 
+/// Recenter the quick-action window on whichever monitor currently owns
+/// the main RunHQ window (falling back to the palette's own monitor, then
+/// the primary). Called on every show so the palette follows the user
+/// across multi-monitor setups and tight 13" displays — the one-time
+/// `.center()` in the builder only runs at startup and otherwise leaves
+/// the palette pinned to its first home.
+///
+/// Also clamps the window size to the monitor's logical bounds so the
+/// palette can never open off-screen on a small laptop display, which is
+/// what was causing the panel to render too high on 13" MacBooks: the
+/// 1200×900 default overflowed the 1280×800 MBA viewport and the React
+/// side centered inside that overflowed frame, not the screen.
+fn reposition_quick_action(app: &tauri::AppHandle) {
+    let Some(win) = app.get_webview_window("quick-action") else {
+        return;
+    };
+
+    let monitor = app
+        .get_webview_window("main")
+        .and_then(|m| m.current_monitor().ok().flatten())
+        .or_else(|| win.current_monitor().ok().flatten())
+        .or_else(|| win.primary_monitor().ok().flatten());
+
+    let Some(monitor) = monitor else {
+        return;
+    };
+
+    let scale = monitor.scale_factor();
+    let size = monitor.size();
+    let position = monitor.position();
+
+    let mon_w = size.width as f64 / scale;
+    let mon_h = size.height as f64 / scale;
+    let mon_x = position.x as f64 / scale;
+    let mon_y = position.y as f64 / scale;
+
+    // Target is a spacious backdrop around the 620×520 palette — enough
+    // transparent margin for "click outside to dismiss" to feel natural —
+    // but never larger than the monitor minus menu bar / dock allowances.
+    // Min of 720×560 keeps the backdrop usable on sub-laptop displays;
+    // max of 1200×900 stops the window from stretching absurdly wide on
+    // 5K studio displays.
+    let win_w = (mon_w - 80.0).clamp(720.0, 1200.0);
+    let win_h = (mon_h - 120.0).clamp(560.0, 900.0);
+
+    let x = mon_x + (mon_w - win_w) / 2.0;
+    let y = mon_y + (mon_h - win_h) / 2.0;
+
+    let _ = win.set_size(LogicalSize::new(win_w, win_h));
+    let _ = win.set_position(LogicalPosition::new(x, y));
+}
+
 fn toggle_quick_action(app: &tauri::AppHandle) {
     if let Some(w) = app.get_webview_window("quick-action") {
         if w.is_visible().unwrap_or(false) {
@@ -97,6 +149,10 @@ fn toggle_quick_action(app: &tauri::AppHandle) {
                     *slot = Some(Instant::now());
                 }
             }
+            // Reposition BEFORE show so the window appears in its final
+            // location on the first frame — otherwise the user sees a
+            // flash at the old monitor position before it snaps over.
+            reposition_quick_action(app);
             let _ = w.show();
             let _ = w.set_focus();
             // Only dim the main window when the user triggered the palette
