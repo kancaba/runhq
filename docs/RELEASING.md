@@ -73,7 +73,7 @@ Developer pushes conventional commits to `main`
            │
            ├──► Uploads signed `latest.json` (Tauri updater manifest)
            │
-           └──► Auto-updates the Homebrew tap (erdembas/homebrew-runhq)
+           └──► Auto-updates the Homebrew tap (erdembas/homebrew-tap)
 
 Installed apps auto-update by polling the Cloudflare-proxied endpoint:
     https://runhq.dev/api/updates/latest   →  proxies to `latest.json`
@@ -216,7 +216,7 @@ The published GitHub Release triggers `release.yml`:
    - `RunHQ_{ver}_x64_en-US.msi`, `RunHQ_{ver}_x64-setup.exe`
    - `RunHQ_{ver}_amd64.deb`, `RunHQ_{ver}_amd64.AppImage`
 3. Generates and signs `latest.json` (the Tauri updater manifest) and attaches it.
-4. Pushes the updated Cask to `erdembas/homebrew-runhq`.
+4. Pushes the updated Cask to `erdembas/homebrew-tap`.
 
 Once assets are uploaded, installed apps on user machines pick up the update through the [Auto-Update System](#auto-update-system) on their next launch.
 
@@ -242,11 +242,11 @@ This outputs a **public key** and a **private key** (encrypted with a password y
 
 Go to **Settings → Secrets and variables → Actions** and add:
 
-| Secret                               | Value                                                          |
-| ------------------------------------ | -------------------------------------------------------------- |
-| `TAURI_SIGNING_PRIVATE_KEY`          | Private key content from step 1                                |
-| `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Password you chose in step 1                                   |
-| `HOMEBREW_TAP_TOKEN`                 | A PAT with `repo` scope (to push to `erdembas/homebrew-runhq`) |
+| Secret                               | Value                                                        |
+| ------------------------------------ | ------------------------------------------------------------ |
+| `TAURI_SIGNING_PRIVATE_KEY`          | Private key content from step 1                              |
+| `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Password you chose in step 1                                 |
+| `HOMEBREW_TAP_TOKEN`                 | A PAT with `repo` scope (to push to `erdembas/homebrew-tap`) |
 
 Optional Apple Developer ID secrets — only needed if you want to upgrade from ad-hoc to notarized builds (see [macOS Code Signing Strategy](#macos-code-signing-strategy)):
 
@@ -273,7 +273,7 @@ Open `apps/desktop/src-tauri/tauri.conf.json` and set the `pubkey` to the public
 
 ### 4. Create the Homebrew tap repository
 
-1. Create a new GitHub repo: `erdembas/homebrew-runhq`.
+1. Create a new GitHub repo: `erdembas/homebrew-tap` (generic tap name so it can host additional casks later — users install via `brew tap erdembas/tap`).
 2. Add a `Casks/` directory.
 3. Copy `scripts/homebrew-cask-template.rb` as `Casks/runhq.rb`.
 
@@ -440,7 +440,7 @@ Every release includes:
 ### Homebrew (macOS)
 
 ```bash
-brew tap erdembas/runhq
+brew tap erdembas/tap
 brew install --cask RunHQ
 ```
 
@@ -577,7 +577,7 @@ Only relevant if you've populated the `APPLE_*` secrets. Open the macOS job log 
 ### Homebrew tap not updated
 
 - Verify `HOMEBREW_TAP_TOKEN` is valid and has `repo` scope.
-- Verify `erdembas/homebrew-runhq` exists with a `Casks/` directory.
+- Verify `erdembas/homebrew-tap` exists with a `Casks/` directory.
 
 ### Updater not working on installed app
 

@@ -41,7 +41,7 @@ jobs:
       - name: Checkout homebrew tap
         uses: actions/checkout@v4
         with:
-          repository: erdembas/homebrew-runhq
+          repository: erdembas/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
 
       - name: Compute sha256 for both architectures

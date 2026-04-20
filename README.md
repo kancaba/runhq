@@ -56,11 +56,20 @@ Terminal tabs are a mess. Containers are heavy. You open a terminal for the web 
 ### Homebrew (macOS) — recommended
 
 ```bash
-brew tap erdembas/runhq
+brew tap erdembas/tap
 brew install --cask runhq
 ```
 
 Upgrade later with `brew upgrade --cask runhq`. The cask clears macOS's quarantine attribute automatically on install, so RunHQ opens on first launch with no warnings or terminal tricks.
+
+> **Migrating from v0.1.1 (`erdembas/runhq` tap)?** GitHub's rename redirect usually handles
+> this transparently, but the clean way is:
+>
+> ```bash
+> brew untap erdembas/runhq
+> brew tap erdembas/tap
+> brew upgrade --cask runhq
+> ```
 
 ### Download from GitHub Releases
 
