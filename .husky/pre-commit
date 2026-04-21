@@ -24,6 +24,18 @@ fi
 
 pnpm exec lint-staged
 
+# Run Rust tests when core crate is staged.
+STAGED_RUST=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^crates/' || true)
+
+if [ -n "$STAGED_RUST" ]; then
+  echo "→ cargo test -p runhq-core"
+  cargo test -p runhq-core 2>&1
+  if [ $? -ne 0 ]; then
+    echo "error: cargo test failed — fix test failures before committing."
+    exit 1
+  fi
+fi
+
 # Lint GitHub Actions workflows when any are staged. actionlint is the
 # de-facto linter for .github/workflows — it catches expression typos,
 # undefined contexts, and runs shellcheck on embedded scripts.

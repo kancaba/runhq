@@ -26,7 +26,8 @@ fn detects_node_project_with_scripts() {
     let hits = scanner::scan(dir.path()).unwrap();
     assert_eq!(hits.len(), 1);
     let hit = &hits[0];
-    assert_eq!(hit.name, "acme-web");
+    assert_eq!(hit.name, "web");
+    assert_eq!(hit.project_name.as_deref(), Some("acme-web"));
     assert_eq!(hit.runtime, "node");
     assert_eq!(hit.suggestions.first().unwrap().label, "dev");
 }
