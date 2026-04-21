@@ -338,30 +338,36 @@ pub fn run() {
 
             // ---- System Tray ----
             let show = MenuItem::with_id(app, "show", "Show RunHQ", true, None::<&str>)?;
+            let new_service =
+                MenuItem::with_id(app, "new-service", "New Service…", true, None::<&str>)?;
+            let new_stack = MenuItem::with_id(app, "new-stack", "New Stack…", true, None::<&str>)?;
+            let scan = MenuItem::with_id(app, "scan", "Scan Projects…", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let sep = PredefinedMenuItem::separator(app)?;
-            let menu = Menu::with_items(app, &[&show, &sep, &quit])?;
+            let menu = Menu::with_items(
+                app,
+                &[&show, &sep, &new_service, &new_stack, &scan, &sep, &quit],
+            )?;
 
             let _tray = TrayIconBuilder::new()
                 .menu(&menu)
-                // Left-clicking the tray should *immediately* bring the app
-                // back — that's the muscle-memory users have from Slack,
-                // Docker, etc. With the default `true`, macOS/Windows open
-                // the menu first and force a second click on "Show RunHQ",
-                // which makes the app feel unresponsive the moment the
-                // window is hidden via the close button. Menu stays fully
-                // functional on right-click, so Quit is still one gesture
-                // away.
                 .show_menu_on_left_click(false)
                 .tooltip("RunHQ")
                 .icon(app.default_window_icon().unwrap().clone())
                 .on_menu_event(|app, event| match event.id.as_ref() {
-                    // Both tray entrypoints route through `focus_main_window`
-                    // so macOS users get NSApp un-hide + unminimize + focus in
-                    // one shot — matching what Quick Action does. Doing only
-                    // `window.show()` here leaves the app hidden if the user
-                    // pressed Cmd+H earlier.
                     "show" => focus_main_window(app.clone()),
+                    "new-service" => {
+                        focus_main_window(app.clone());
+                        let _ = app.emit("runhq://tray-action", "new-service");
+                    }
+                    "new-stack" => {
+                        focus_main_window(app.clone());
+                        let _ = app.emit("runhq://tray-action", "new-stack");
+                    }
+                    "scan" => {
+                        focus_main_window(app.clone());
+                        let _ = app.emit("runhq://tray-action", "scan");
+                    }
                     "quit" => {
                         app.exit(0);
                     }

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PlayCircle, RotateCcw } from 'lucide-react';
+import { PlayCircle, RotateCcw, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useAppStore } from '@/store/useAppStore';
 import { Dialog } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Kbd } from '@/components/ui/Kbd';
@@ -231,6 +233,60 @@ export function ShortcutSettings({ onClose, onReplayTour }: ShortcutSettingsProp
           </button>
         </div>
       )}
+
+      <div className="border-border mt-4 border-t pt-3">
+        <div className="text-fg text-[12px] font-semibold">Danger Zone</div>
+        <p className="text-fg-dim mt-1 text-[11px]">
+          Remove all services, stacks, and sections. This cannot be undone.
+        </p>
+        <FullReset />
+      </div>
     </Dialog>
+  );
+}
+
+function FullReset() {
+  const [pending, setPending] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const services = useAppStore((s) => s.services);
+  const setServices = useAppStore((s) => s.setServices);
+  const setStacks = useAppStore((s) => s.setStacks);
+  const resetSections = useCallback(() => {
+    useAppStore.setState({ sections: [], serviceSection: {}, stackSection: {} });
+  }, []);
+
+  const doReset = async () => {
+    setBusy(true);
+    for (const svc of services) {
+      await ipc.stopService(svc.id).catch(() => {});
+      await ipc.removeService(svc.id);
+    }
+    setServices([]);
+    setStacks([]);
+    resetSections();
+    setBusy(false);
+    setPending(false);
+  };
+
+  return (
+    <>
+      <Button
+        variant="danger"
+        size="sm"
+        leftIcon={<Trash2 className="h-3 w-3" />}
+        onClick={() => setPending(true)}
+        disabled={services.length === 0 && busy}
+        className="mt-2"
+      >
+        {busy ? 'Resetting…' : 'Full Reset'}
+      </Button>
+      {pending && (
+        <ConfirmDialog
+          message="Delete all services, stacks, and sections?"
+          onConfirm={doReset}
+          onCancel={() => setPending(false)}
+        />
+      )}
+    </>
   );
 }

@@ -18,6 +18,7 @@ import { WelcomeTour } from '@/components/WelcomeTour';
 import { useAppStore, logKey } from '@/store/useAppStore';
 import { events, ipc } from '@/lib/ipc';
 import { hasSeenTour, hasSeenTrayHint, markTrayHintSeen } from '@/lib/onboarding';
+import { useContextMenu } from '@/lib/context-menu';
 
 export default function App() {
   const selectedServiceId = useAppStore((s) => s.selectedServiceId);
@@ -30,8 +31,10 @@ export default function App() {
   const setEditors = useAppStore((s) => s.setEditors);
   const setSelected = useAppStore((s) => s.setSelected);
   const editorService = useAppStore((s) => s.editorService);
+  const openEditor = useAppStore((s) => s.openEditor);
   const closeEditor = useAppStore((s) => s.closeEditor);
   const editorStack = useAppStore((s) => s.editorStack);
+  const openStackEditor = useAppStore((s) => s.openStackEditor);
   const closeStackEditor = useAppStore((s) => s.closeStackEditor);
   const setStacks = useAppStore((s) => s.setStacks);
 
@@ -60,6 +63,21 @@ export default function App() {
     const picked = await open({ directory: true, multiple: false });
     if (typeof picked === 'string') setScanPath(picked);
   }, []);
+
+  const contextItems = useCallback(
+    (): Array<{ label: string; action?: () => void; separator?: boolean; shortcut?: string }> => [
+      { label: 'New Service…', action: () => openEditor(null), shortcut: '⌘N' },
+      { label: 'New Stack…', action: () => openStackEditor(null) },
+      { label: 'Scan Projects…', action: startScan },
+      { separator: true, label: '' },
+      {
+        label: 'Reload',
+        action: () => window.location.reload(),
+      },
+    ],
+    [openEditor, openStackEditor, startScan],
+  );
+  const { menu: contextMenu } = useContextMenu(contextItems);
 
   useEffect(() => {
     let cancelled = false;
@@ -148,9 +166,24 @@ export default function App() {
           setShortcutSettingsOpen(true);
         }),
       );
+      unsubs.push(
+        await listen<string>('runhq://tray-action', (e) => {
+          switch (e.payload) {
+            case 'new-service':
+              openEditor(null);
+              break;
+            case 'new-stack':
+              openStackEditor(null);
+              break;
+            case 'scan':
+              startScan();
+              break;
+          }
+        }),
+      );
     })();
     return () => unsubs.forEach((u) => u());
-  }, [setSelected, startScan]);
+  }, [setSelected, startScan, openEditor, openStackEditor]);
 
   // One-time "still running in your menu bar" hint.
   //
@@ -257,6 +290,7 @@ export default function App() {
           onClick={() => void ipc.hideQuickAction().catch(() => {})}
         />
       )}
+      {contextMenu}
     </div>
   );
 }

@@ -76,6 +76,7 @@ export interface ProjectCandidate {
   runtime: string;
   suggestions: Suggestion[];
   package_manager?: string;
+  project_name?: string;
 }
 
 export interface AppInfo {

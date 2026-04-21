@@ -45,6 +45,8 @@ pub struct ProjectCandidate {
     pub suggestions: Vec<Suggestion>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package_manager: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -79,6 +81,11 @@ pub fn scan(root: &Path) -> AppResult<Vec<ProjectCandidate>> {
     let mut out = Vec::new();
     walk(root, 0, &providers, &mut out);
     out.sort_by(|a, b| a.name.cmp(&b.name));
+    // Deduplicate by cwd: if multiple providers match the same directory
+    // (e.g. package.json + docker-compose.yml), keep only the first match
+    // which corresponds to the highest-priority provider.
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|c| seen.insert(c.cwd.clone()));
     Ok(out)
 }
 
@@ -159,11 +166,8 @@ impl RuntimeProvider for NodeProvider {
         let raw = fs::read_to_string(&pkg_path).ok()?;
         let pkg: PackageJson = serde_json::from_str(&raw).ok()?;
 
-        let name = pkg
-            .name
-            .clone()
-            .or_else(|| dir.file_name().and_then(|n| n.to_str().map(str::to_string)))
-            .unwrap_or_else(|| "unnamed".to_string());
+        let name = dir_name(dir);
+        let project_name = pkg.name.clone();
 
         let pm = if dir.join("pnpm-lock.yaml").exists() {
             "pnpm"
@@ -205,6 +209,7 @@ impl RuntimeProvider for NodeProvider {
             runtime: "node",
             suggestions,
             package_manager: Some(pm.to_string()),
+            project_name,
         })
     }
 }
@@ -219,7 +224,7 @@ impl RuntimeProvider for DotnetProvider {
     }
 
     fn detect(&self, dir: &Path) -> Option<ProjectCandidate> {
-        let proj = fs::read_dir(dir)
+        let proj_file = fs::read_dir(dir)
             .ok()?
             .flatten()
             .find(|e| {
@@ -229,11 +234,15 @@ impl RuntimeProvider for DotnetProvider {
             })?
             .path();
 
-        let proj_name = proj
-            .file_stem()
-            .and_then(|n| n.to_str())
-            .unwrap_or("dotnet")
-            .to_string();
+        let name = dir_name(dir);
+        let project_name = fs::read_to_string(&proj_file).ok().and_then(|raw| {
+            let open = "<AssemblyName>";
+            let close = "</AssemblyName>";
+            let start = raw.find(open)?;
+            let content_start = start + open.len();
+            let end = raw[content_start..].find(close)?;
+            Some(raw[content_start..content_start + end].trim().to_string())
+        });
 
         let mut suggestions = vec![
             Suggestion {
@@ -265,11 +274,12 @@ impl RuntimeProvider for DotnetProvider {
         }
 
         Some(ProjectCandidate {
-            name: proj_name,
+            name,
             cwd: dir.to_path_buf(),
             runtime: "dotnet",
             suggestions,
             package_manager: None,
+            project_name,
         })
     }
 }
@@ -288,9 +298,7 @@ impl RuntimeProvider for JavaMavenProvider {
             return None;
         }
 
-        let name = extract_xml_tag(dir.join("pom.xml"), "artifactId")
-            .or_else(|| extract_xml_tag(dir.join("pom.xml"), "name"))
-            .unwrap_or_else(|| dir_name(dir));
+        let name = dir_name(dir);
 
         let mut suggestions = vec![
             Suggestion {
@@ -323,6 +331,7 @@ impl RuntimeProvider for JavaMavenProvider {
             runtime: "java",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -343,17 +352,7 @@ impl RuntimeProvider for JavaGradleProvider {
             return None;
         }
 
-        let name = extract_xml_tag(dir.join("pom.xml"), "artifactId")
-            .or_else(|| {
-                let settings = dir.join("settings.gradle");
-                if settings.exists() {
-                    extract_text_content(&settings, "rootProject.name")
-                } else {
-                    let settings_kts = dir.join("settings.gradle.kts");
-                    extract_text_content(&settings_kts, "rootProject.name")
-                }
-            })
-            .unwrap_or_else(|| dir_name(dir));
+        let name = dir_name(dir);
 
         let gradle = if dir.join("gradlew").exists() {
             "./gradlew"
@@ -389,6 +388,7 @@ impl RuntimeProvider for JavaGradleProvider {
             runtime: "java",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -407,7 +407,7 @@ impl RuntimeProvider for GoProvider {
             return None;
         }
 
-        let name = extract_go_module(dir).unwrap_or_else(|| dir_name(dir));
+        let name = dir_name(dir);
 
         let mut suggestions = vec![
             Suggestion {
@@ -457,6 +457,7 @@ impl RuntimeProvider for GoProvider {
             runtime: "go",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -475,8 +476,7 @@ impl RuntimeProvider for RustProvider {
             return None;
         }
 
-        let name =
-            extract_toml_field(dir.join("Cargo.toml"), "name").unwrap_or_else(|| dir_name(dir));
+        let name = dir_name(dir);
 
         let mut suggestions = vec![
             Suggestion {
@@ -513,6 +513,7 @@ impl RuntimeProvider for RustProvider {
             runtime: "rust",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -537,11 +538,7 @@ impl RuntimeProvider for PythonProvider {
             return None;
         }
 
-        let name = if has_pyproject {
-            extract_toml_field(dir.join("pyproject.toml"), "name").unwrap_or_else(|| dir_name(dir))
-        } else {
-            dir_name(dir)
-        };
+        let name = dir_name(dir);
 
         let mut suggestions = Vec::new();
 
@@ -615,6 +612,7 @@ impl RuntimeProvider for PythonProvider {
             runtime: "python",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -696,6 +694,7 @@ impl RuntimeProvider for RubyProvider {
             runtime: "ruby",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -719,11 +718,7 @@ impl RuntimeProvider for PhpProvider {
             return None;
         }
 
-        let name = if has_composer {
-            extract_composer_name(dir).unwrap_or_else(|| dir_name(dir))
-        } else {
-            dir_name(dir)
-        };
+        let name = dir_name(dir);
 
         let mut suggestions = Vec::new();
 
@@ -778,6 +773,7 @@ impl RuntimeProvider for PhpProvider {
             runtime: "php",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -833,6 +829,7 @@ impl RuntimeProvider for DockerProvider {
             runtime: "docker",
             suggestions,
             package_manager: None,
+            project_name: None,
         })
     }
 }
@@ -849,77 +846,4 @@ fn has_file_pattern(dir: &Path, pattern: &str) -> bool {
         let name = name.to_string_lossy();
         name.starts_with(prefix) && name.ends_with(".csproj")
     })
-}
-
-fn extract_xml_tag(path: PathBuf, tag: &str) -> Option<String> {
-    let raw = fs::read_to_string(path).ok()?;
-    let open = format!("<{tag}>");
-    let close = format!("</{tag}>");
-    let start = raw.find(&open)?;
-    let content_start = start + open.len();
-    let end = raw[content_start..].find(&close)?;
-    Some(raw[content_start..content_start + end].trim().to_string())
-}
-
-fn extract_text_content(path: &Path, identifier: &str) -> Option<String> {
-    let raw = fs::read_to_string(path).ok()?;
-    for line in raw.lines() {
-        let trimmed = line.trim();
-        if trimmed.starts_with(identifier) {
-            let value = trimmed
-                .trim_start_matches(identifier)
-                .trim()
-                .trim_start_matches('=')
-                .trim()
-                .trim_start_matches('"')
-                .trim_end_matches('"')
-                .trim()
-                .trim_start_matches('\'')
-                .trim_end_matches('\'');
-            if !value.is_empty() {
-                return Some(value.to_string());
-            }
-        }
-    }
-    None
-}
-
-fn extract_go_module(dir: &Path) -> Option<String> {
-    let raw = fs::read_to_string(dir.join("go.mod")).ok()?;
-    let first_line = raw.lines().next()?;
-    let module = first_line.trim_start_matches("module").trim();
-    if module.is_empty() {
-        return None;
-    }
-    Some(module.split('/').next_back().unwrap_or(module).to_string())
-}
-
-fn extract_toml_field(path: PathBuf, field: &str) -> Option<String> {
-    let raw = fs::read_to_string(path).ok()?;
-    let needle = format!("{field} = ");
-    for line in raw.lines() {
-        let trimmed = line.trim();
-        if trimmed.starts_with(&needle) {
-            let value = trimmed
-                .trim_start_matches(&needle)
-                .trim()
-                .trim_start_matches('"')
-                .trim_end_matches('"');
-            if !value.is_empty() {
-                return Some(value.to_string());
-            }
-        }
-    }
-    None
-}
-
-fn extract_composer_name(dir: &Path) -> Option<String> {
-    let raw = fs::read_to_string(dir.join("composer.json")).ok()?;
-    #[derive(Deserialize)]
-    struct ComposerJson {
-        name: Option<String>,
-    }
-    let pkg: ComposerJson = serde_json::from_str(&raw).ok()?;
-    pkg.name
-        .map(|n| n.split('/').next_back().unwrap_or(&n).to_string())
 }
