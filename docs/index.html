@@ -52,9 +52,83 @@
     </div>
 
     <header class="nav">
+      <div class="nav-glow-container" aria-hidden="true">
+        <div class="nav-glow-orb orb-1"></div>
+        <div class="nav-glow-orb orb-2"></div>
+      </div>
       <div class="nav-inner">
         <a href="#" class="nav-brand" aria-label="RunHQ home">
-          <img src="icon.png" alt="" width="22" height="22" />
+          <svg
+            class="runhq-logo"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            role="img"
+            aria-label="RunHQ"
+            width="28"
+            height="28"
+          >
+            <defs>
+              <linearGradient
+                id="rhq-ember"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="512"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#FB923C" />
+                <stop offset="1" stop-color="#FDBA74" />
+              </linearGradient>
+              <radialGradient
+                id="rhq-gloss"
+                cx="140"
+                cy="110"
+                r="260"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.28" />
+                <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+              </radialGradient>
+              <radialGradient
+                id="rhq-shade"
+                cx="256"
+                cy="520"
+                r="280"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#7C2D12" stop-opacity="0.35" />
+                <stop offset="1" stop-color="#7C2D12" stop-opacity="0" />
+              </radialGradient>
+              <filter id="rhq-bolt-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+                <feOffset dx="0" dy="5" result="off" />
+                <feComponentTransfer><feFuncA type="linear" slope="0.45" /></feComponentTransfer>
+                <feMerge>
+                  <feMergeNode />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <rect width="512" height="512" rx="110" ry="110" fill="url(#rhq-ember)" />
+            <rect width="512" height="512" rx="110" ry="110" fill="url(#rhq-gloss)" />
+            <rect width="512" height="512" rx="110" ry="110" fill="url(#rhq-shade)" />
+            <rect
+              x="1"
+              y="1"
+              width="510"
+              height="510"
+              rx="109"
+              ry="109"
+              fill="none"
+              stroke="#FFFFFF"
+              stroke-opacity="0.18"
+            />
+            <g transform="translate(92,92) scale(13.17)" filter="url(#rhq-bolt-shadow)">
+              <g class="bolt-anim-group">
+                <path d="M13 2 L3 14 L12 14 L11 22 L21 10 L12 10 Z" fill="#FFF7ED" />
+              </g>
+            </g>
+          </svg>
           <span>RunHQ</span>
         </a>
         <nav class="nav-links" aria-label="Primary">
@@ -162,21 +236,34 @@
         <!-- Real app screenshot. Keeps its own macOS chrome + shadow, so the
              outer wrapper only adds a subtle frame glow (see style.css). -->
         <div class="hero-window-shell reveal">
-          <a
+          <div
+            id="heroVideoLink"
             class="hero-window hero-window--shot"
-            href="dashboard.png"
-            aria-label="Open full-size dashboard screenshot"
+            aria-label="Play RunHQ demo video"
+            role="button"
+            tabindex="0"
           >
-            <img
-              src="dashboard.png"
-              alt="RunHQ dashboard — workspace sidebar with services grouped by section and a live status overview"
+            <video
+              id="heroVideoPreview"
+              src="RunHQ_2.mp4"
               width="1803"
               height="1240"
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-            />
-          </a>
+              muted
+              playsinline
+              autoplay
+            ></video>
+            <div class="video-play-overlay">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="currentColor"
+                style="margin-left: 2px"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -194,6 +281,42 @@
             <span class="rt">Ruby</span>
             <span class="rt">PHP</span>
             <span class="rt">Docker Compose</span>
+            <span class="rt" aria-hidden="true">Node.js</span>
+            <span class="rt" aria-hidden="true">Go</span>
+            <span class="rt" aria-hidden="true">.NET</span>
+            <span class="rt" aria-hidden="true">Python</span>
+            <span class="rt" aria-hidden="true">Java</span>
+            <span class="rt" aria-hidden="true">Rust</span>
+            <span class="rt" aria-hidden="true">Ruby</span>
+            <span class="rt" aria-hidden="true">PHP</span>
+            <span class="rt" aria-hidden="true">Docker Compose</span>
+            <span class="rt" aria-hidden="true">Node.js</span>
+            <span class="rt" aria-hidden="true">Go</span>
+            <span class="rt" aria-hidden="true">.NET</span>
+            <span class="rt" aria-hidden="true">Python</span>
+            <span class="rt" aria-hidden="true">Java</span>
+            <span class="rt" aria-hidden="true">Rust</span>
+            <span class="rt" aria-hidden="true">Ruby</span>
+            <span class="rt" aria-hidden="true">PHP</span>
+            <span class="rt" aria-hidden="true">Docker Compose</span>
+            <span class="rt" aria-hidden="true">Node.js</span>
+            <span class="rt" aria-hidden="true">Go</span>
+            <span class="rt" aria-hidden="true">.NET</span>
+            <span class="rt" aria-hidden="true">Python</span>
+            <span class="rt" aria-hidden="true">Java</span>
+            <span class="rt" aria-hidden="true">Rust</span>
+            <span class="rt" aria-hidden="true">Ruby</span>
+            <span class="rt" aria-hidden="true">PHP</span>
+            <span class="rt" aria-hidden="true">Docker Compose</span>
+            <span class="rt" aria-hidden="true">Node.js</span>
+            <span class="rt" aria-hidden="true">Go</span>
+            <span class="rt" aria-hidden="true">.NET</span>
+            <span class="rt" aria-hidden="true">Python</span>
+            <span class="rt" aria-hidden="true">Java</span>
+            <span class="rt" aria-hidden="true">Rust</span>
+            <span class="rt" aria-hidden="true">Ruby</span>
+            <span class="rt" aria-hidden="true">PHP</span>
+            <span class="rt" aria-hidden="true">Docker Compose</span>
             <span class="rt" aria-hidden="true">Node.js</span>
             <span class="rt" aria-hidden="true">Go</span>
             <span class="rt" aria-hidden="true">.NET</span>
@@ -933,7 +1056,60 @@
         };
         onScroll();
         window.addEventListener('scroll', onScroll, { passive: true });
+
+        nav.addEventListener('mousemove', function (e) {
+          var rect = nav.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          nav.style.setProperty('--mouse-x', x + 'px');
+          nav.style.setProperty('--mouse-y', y + 'px');
+        });
       }
+    </script>
+    <div id="videoModal" class="video-modal" style="display: none">
+      <div class="video-modal-bg"></div>
+      <div class="video-modal-content">
+        <span class="video-modal-close">&times;</span>
+        <video id="fullVideo" src="RunHQ_2.mp4" controls playsinline></video>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var preview = document.getElementById('heroVideoPreview');
+        if (preview) {
+          preview.addEventListener('timeupdate', function () {
+            if (preview.currentTime >= 10) {
+              preview.currentTime = 0;
+              preview.play();
+            }
+          });
+        }
+
+        var modal = document.getElementById('videoModal');
+        var fullVideo = document.getElementById('fullVideo');
+        var btn = document.getElementById('heroVideoLink');
+        var closer = document.querySelector('.video-modal-close');
+        var bg = document.querySelector('.video-modal-bg');
+
+        if (btn && modal && fullVideo) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            modal.style.display = 'flex';
+            fullVideo.currentTime = preview ? preview.currentTime : 0;
+            fullVideo.play();
+            if (preview) preview.pause();
+          });
+
+          function closeModal() {
+            modal.style.display = 'none';
+            fullVideo.pause();
+            if (preview) preview.play();
+          }
+
+          closer.addEventListener('click', closeModal);
+          bg.addEventListener('click', closeModal);
+        }
+      });
     </script>
   </body>
 </html>
