@@ -245,13 +245,14 @@
           >
             <video
               id="heroVideoPreview"
-              src="RunHQ_2.mp4"
-              width="1803"
-              height="1240"
+              src="RunHQ-web-version-final.mp4"
+              width="1590"
+              height="1080"
               muted
               playsinline
               autoplay
             ></video>
+            <div class="video-overlay-gradient"></div>
             <div class="video-play-overlay">
               <svg
                 viewBox="0 0 24 24"
@@ -262,6 +263,11 @@
               >
                 <path d="M8 5v14l11-7z" />
               </svg>
+            </div>
+            <div id="heroVideoText" class="video-text-cinematic">
+              <div class="vtc-kicker">RunHQ Orchestrator</div>
+              <div class="vtc-title" id="vtcTitle">One window for all services</div>
+              <div class="vtc-desc" id="vtcDesc">Start, stop, and monitor every local service without leaving your flow.</div>
             </div>
           </div>
         </div>
@@ -1066,11 +1072,11 @@
         });
       }
     </script>
-    <div id="videoModal" class="video-modal" style="display: none">
+    <div id="videoModal" class="video-modal">
       <div class="video-modal-bg"></div>
       <div class="video-modal-content">
         <span class="video-modal-close">&times;</span>
-        <video id="fullVideo" src="RunHQ_2.mp4" playsinline></video>
+        <video id="fullVideo" src="RunHQ-web-version-final.mp4" playsinline></video>
         <div class="cv-controls">
           <button class="cv-btn" id="playPauseBtn" aria-label="Play/Pause">
             <svg id="playIcon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="display:none;"><path d="M8 5v14l11-7z"/></svg>
@@ -1109,11 +1115,39 @@
         var btn = document.getElementById('heroVideoLink');
         var closer = document.querySelector('.video-modal-close');
         var bg = document.querySelector('.video-modal-bg');
+        var rotator = document.getElementById('heroVideoText');
+        var vtcTitle = document.getElementById('vtcTitle');
+        var vtcDesc = document.getElementById('vtcDesc');
 
         if (btn && modal && fullVideo) {
+          if (rotator && vtcTitle && vtcDesc) {
+            var snippets = [
+              { t: "One window for all services", d: "Start, stop, and monitor every local service without leaving your flow." },
+              { t: "Native. Local. Offline.", d: "Built with Rust and Tauri. No containers, no cloud dependencies, no telemetry." },
+              { t: "Less than 100MB RAM", d: "A ridiculously lightweight process orchestrator that respects your machine's resources." },
+              { t: "Reclaim your terminal tabs", d: "Stop digging through dozens of open shells. See all logs and processes in a single unified view." }
+            ];
+            var snippetIndex = 0;
+            vtcTitle.textContent = snippets[0].t;
+            vtcDesc.textContent = snippets[0].d;
+            
+            setTimeout(function() {
+              rotator.classList.add('is-visible');
+            }, 500);
+
+            setInterval(function() {
+              rotator.classList.remove('is-visible');
+              setTimeout(function() {
+                snippetIndex = (snippetIndex + 1) % snippets.length;
+                vtcTitle.textContent = snippets[snippetIndex].t;
+                vtcDesc.textContent = snippets[snippetIndex].d;
+                rotator.classList.add('is-visible');
+              }, 800);
+            }, 5000);
+          }
           btn.addEventListener('click', function (e) {
             e.preventDefault();
-            modal.style.display = 'flex';
+            modal.classList.add('is-open');
             document.body.style.overflow = 'hidden';
             fullVideo.currentTime = preview ? preview.currentTime : 0;
             fullVideo.play();
@@ -1121,7 +1155,7 @@
           });
 
           function closeModal() {
-            modal.style.display = 'none';
+            modal.classList.remove('is-open');
             document.body.style.overflow = '';
             fullVideo.pause();
             if (preview) preview.play();
